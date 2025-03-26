@@ -12,7 +12,7 @@ export default function TerminalFooter({
     : "text-terminal-negative";
   
   const statusText = connectionStatus === "connected" 
-    ? "Connected" 
+    ? "Connected (WebSocket)" 
     : "Disconnected";
 
   return (
@@ -21,7 +21,7 @@ export default function TerminalFooter({
         API Status: <span className={statusClassname}>{statusText}</span>
       </div>
       <div>
-        Last Refresh: <span>{lastRefreshTime}</span>
+        Last Update: <span>{lastRefreshTime}</span>
       </div>
     </div>
   );

@@ -130,10 +130,10 @@ export default function TerminalBody({
             <span className="text-terminal-text">:</span>
             <span className="text-terminal-accent">~</span>
             <span className="text-terminal-text">$ </span>
-            <span className="font-bold">stats --interval=1s</span>
+            <span className="font-bold">stats --realtime</span>
             <div className="mt-1 text-sm">
               <div>Total tickers: <span className="text-terminal-accent">{Object.keys(data.data).length}</span></div>
-              <div>Refresh interval: <span className="text-terminal-accent">10s</span></div>
+              <div>Connection type: <span className="text-terminal-accent">WebSocket (real-time)</span></div>
               <div>Connection status: <span className="text-terminal-positive">ACTIVE</span></div>
             </div>
           </div>

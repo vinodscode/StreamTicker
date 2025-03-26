@@ -15,14 +15,9 @@ export default function TerminalApp() {
     previousPrices
   } = useStockData();
 
-  useEffect(() => {
-    // Set up auto-refresh every 10 seconds
-    const intervalId = setInterval(() => {
-      refresh();
-    }, 10000);
-
-    return () => clearInterval(intervalId);
-  }, [refresh]);
+  // No need for auto-refresh interval with WebSockets
+  // The data will automatically update when new data is received
+  // We'll keep the refresh function for manual refreshes
 
   return (
     <div className="w-full max-w-4xl bg-terminal-bg border border-terminal-border rounded-lg shadow-2xl overflow-hidden flex flex-col font-mono">
