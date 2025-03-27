@@ -17,8 +17,8 @@ export default function TerminalApp() {
     previousPrices
   } = useStockData();
 
-  // Configure stale data alert for 20 seconds of inactivity
-  const STALE_DATA_THRESHOLD_MS = 20000;  // 20 seconds
+  // Configure stale data alert for 30 seconds of inactivity
+  const STALE_DATA_THRESHOLD_MS = 30000;  // 30 seconds
 
   return (
     <>

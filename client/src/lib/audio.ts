@@ -13,11 +13,78 @@ let audioContext: AudioContext | null = null;
  */
 function getAudioContext(): AudioContext {
   if (!audioContext) {
-    // Modern browsers require user interaction to create AudioContext
-    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    try {
+      // Modern browsers require user interaction to create AudioContext
+      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      // Ensure the context is running (needed for Chrome's autoplay policy)
+      if (audioContext.state === 'suspended') {
+        const resumeAudio = () => {
+          audioContext?.resume();
+          // Remove the event listeners once the context is resumed
+          document.removeEventListener('click', resumeAudio);
+          document.removeEventListener('touchstart', resumeAudio);
+          document.removeEventListener('keydown', resumeAudio);
+          console.log('Audio context resumed after user interaction');
+        };
+        
+        // Add event listeners to resume audio context on user interaction
+        document.addEventListener('click', resumeAudio);
+        document.addEventListener('touchstart', resumeAudio);
+        document.addEventListener('keydown', resumeAudio);
+        console.log('Audio context is suspended - waiting for user interaction');
+      }
+    } catch (e) {
+      console.error('Failed to initialize audio context:', e);
+    }
   }
-  return audioContext;
+  return audioContext!;
 }
+
+/**
+ * Play a silent sound to unlock audio playback
+ * This should be called on some user interaction like a click event
+ */
+export function unlockAudio(): Promise<void> {
+  return new Promise((resolve) => {
+    try {
+      const context = getAudioContext();
+      
+      // Create silent buffer and play it
+      const buffer = context.createBuffer(1, 1, 22050);
+      const source = context.createBufferSource();
+      source.buffer = buffer;
+      source.connect(context.destination);
+      source.start(0);
+      
+      console.log('Audio system unlocked by user interaction');
+      resolve();
+    } catch (e) {
+      console.warn('Could not unlock audio:', e);
+      resolve(); // Resolve anyway, don't reject
+    }
+  });
+}
+
+// Try to initialize audio on page load to prepare for sound playback
+window.addEventListener('DOMContentLoaded', () => {
+  // Initialize the audio context so it's ready to play when needed
+  getAudioContext();
+  
+  // Add click handler to unlock audio on first user interaction
+  const unlockOnUserAction = () => {
+    unlockAudio().then(() => {
+      // Remove event listeners once audio is unlocked
+      document.removeEventListener('click', unlockOnUserAction);
+      document.removeEventListener('touchstart', unlockOnUserAction);
+      document.removeEventListener('keydown', unlockOnUserAction);
+    });
+  };
+  
+  document.addEventListener('click', unlockOnUserAction);
+  document.addEventListener('touchstart', unlockOnUserAction);
+  document.addEventListener('keydown', unlockOnUserAction);
+});
 
 /**
  * Play the alert sound
@@ -25,54 +92,78 @@ function getAudioContext(): AudioContext {
  * @returns Promise that resolves when the sound starts playing
  */
 export function playAlertSound(volume = 0.5): Promise<void> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     try {
-      // Create audio element
+      // First try using Audio element
       const audio = new Audio(ALERT_SOUND_BASE64);
       audio.volume = Math.min(1.0, Math.max(0.0, volume));
       
-      // Play the sound
       const playPromise = audio.play();
       
-      // Modern browsers return a promise from play()
       if (playPromise !== undefined) {
         playPromise
-          .then(() => resolve())
-          .catch(err => {
-            console.error('Error playing alert sound:', err);
-            // Try alternative method if first method fails
-            try {
-              getAudioContext();
-              const source = audioContext!.createBufferSource();
-              fetch(ALERT_SOUND_BASE64)
-                .then(response => response.arrayBuffer())
-                .then(arrayBuffer => audioContext!.decodeAudioData(arrayBuffer))
-                .then(audioBuffer => {
-                  source.buffer = audioBuffer;
-                  const gainNode = audioContext!.createGain();
-                  gainNode.gain.value = volume;
-                  source.connect(gainNode);
-                  gainNode.connect(audioContext!.destination);
-                  source.start(0);
-                  resolve();
-                })
-                .catch(error => {
-                  console.error('Failed to play alert sound (alternative method):', error);
-                  reject(error);
-                });
-            } catch (e) {
-              console.error('Failed to initialize audio context:', e);
-              reject(e);
-            }
+          .then(() => {
+            console.log('Alert sound played successfully');
+            resolve();
+          })
+          .catch(() => {
+            // If Audio element fails, try WebAudio API
+            tryPlayWithWebAudio(volume).then(resolve).catch(() => {
+              // Both methods failed but we resolve anyway to prevent errors
+              console.log('All audio playback methods failed');
+              resolve();
+            });
           });
       } else {
         // For older browsers without promise support
         audio.addEventListener('playing', () => resolve());
-        audio.addEventListener('error', err => reject(err));
+        audio.addEventListener('error', () => {
+          // Try WebAudio if HTML Audio fails
+          tryPlayWithWebAudio(volume).then(resolve).catch(() => resolve());
+        });
       }
     } catch (err) {
-      console.error('Error setting up audio playback:', err);
-      reject(err);
+      console.warn('Error setting up audio playback:', err);
+      // Try WebAudio if HTML Audio fails
+      tryPlayWithWebAudio(volume).then(resolve).catch(() => resolve());
+    }
+  });
+}
+
+/**
+ * Helper function to try playing sound with WebAudio API
+ */
+function tryPlayWithWebAudio(volume: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    try {
+      const context = getAudioContext();
+      
+      if (context.state === 'suspended') {
+        context.resume().catch(e => console.warn('Could not resume audio context:', e));
+      }
+      
+      // Since we can't load the MP3 directly, use oscillator for simplicity
+      const oscillator = context.createOscillator();
+      const gainNode = context.createGain();
+      
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(440, context.currentTime); // A4 note
+      
+      gainNode.gain.setValueAtTime(0, context.currentTime);
+      gainNode.gain.linearRampToValueAtTime(volume, context.currentTime + 0.01);
+      gainNode.gain.linearRampToValueAtTime(0, context.currentTime + 0.5);
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(context.destination);
+      
+      oscillator.start(context.currentTime);
+      oscillator.stop(context.currentTime + 0.5);
+      
+      console.log('Alert sound played with WebAudio API');
+      setTimeout(() => resolve(), 100); // Resolve after sound begins
+    } catch (e) {
+      console.warn('WebAudio playback failed:', e);
+      reject(e);
     }
   });
 }
