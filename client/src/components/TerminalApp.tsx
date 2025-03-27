@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import TerminalHeader from "./TerminalHeader";
 import TerminalBody from "./TerminalBody";
 import TerminalFooter from "./TerminalFooter";
@@ -15,12 +14,11 @@ export default function TerminalApp() {
     previousPrices
   } = useStockData();
 
-  // No need for auto-refresh interval with WebSockets
-  // The data will automatically update when new data is received
-  // We'll keep the refresh function for manual refreshes
-
   return (
-    <div className="w-full max-w-4xl bg-terminal-bg border border-terminal-border rounded-lg shadow-2xl overflow-hidden flex flex-col font-mono">
+    <div className="w-full max-w-4xl bg-terminal-bg border border-terminal-border rounded-lg shadow-2xl overflow-hidden flex flex-col font-mono relative transition-all duration-300 hover:shadow-cyan-900/30 hover:shadow-2xl">
+      {/* Gradient overlay at the top */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-purple-500"></div>
+      
       <TerminalHeader onRefresh={refresh} />
       <TerminalBody 
         data={data} 
