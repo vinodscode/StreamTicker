@@ -8,10 +8,12 @@ export const useStockData = () => {
   const [lastRefreshTime, setLastRefreshTime] = useState<string>("never");
   const [refreshTimestamp, setRefreshTimestamp] = useState<Date | null>(null);
   const [lastDataTimestamp, setLastDataTimestamp] = useState<string | null>(null);
+  const [lastUniqueTimestamp, setLastUniqueTimestamp] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<"connected" | "disconnected">("disconnected");
   const [stockData, setStockData] = useState<StockDataResponse | null>(null);
   
   const socketRef = useRef<WebSocket | null>(null);
+  const previousDataRef = useRef<string | null>(null);
 
   const { 
     data: initialData, 
@@ -43,9 +45,20 @@ export const useStockData = () => {
       try {
         const data = JSON.parse(event.data) as StockDataResponse;
         console.log("Received new stock data:", data);
+        
+        // Always update the received timestamp
+        setLastDataTimestamp(data.timestamp);
+        
+        // Check if this is actually new data or the same data repeating
+        const dataString = JSON.stringify(data);
+        if (dataString !== previousDataRef.current) {
+          // This is unique data, update our unique timestamp
+          setLastUniqueTimestamp(data.timestamp);
+          previousDataRef.current = dataString;
+        }
+        
         setStockData(data);
         setRefreshTimestamp(new Date());
-        setLastDataTimestamp(data.timestamp);
       } catch (error) {
         console.error("Error parsing WebSocket data:", error);
       }
@@ -72,6 +85,8 @@ export const useStockData = () => {
       const typedInitialData = initialData as StockDataResponse;
       setStockData(typedInitialData);
       setLastDataTimestamp(typedInitialData.timestamp);
+      setLastUniqueTimestamp(typedInitialData.timestamp);
+      previousDataRef.current = JSON.stringify(typedInitialData);
     }
   }, [initialData, stockData]);
 
@@ -113,6 +128,7 @@ export const useStockData = () => {
     refresh,
     lastRefreshTime,
     lastDataTimestamp,
+    lastUniqueTimestamp,
     connectionStatus,
     previousPrices
   };
