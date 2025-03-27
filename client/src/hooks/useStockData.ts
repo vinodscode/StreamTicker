@@ -7,6 +7,7 @@ export const useStockData = () => {
   const [previousPrices, setPreviousPrices] = useState<Record<string, number>>({});
   const [lastRefreshTime, setLastRefreshTime] = useState<string>("never");
   const [refreshTimestamp, setRefreshTimestamp] = useState<Date | null>(null);
+  const [lastDataTimestamp, setLastDataTimestamp] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<"connected" | "disconnected">("disconnected");
   const [stockData, setStockData] = useState<StockDataResponse | null>(null);
   
@@ -44,6 +45,7 @@ export const useStockData = () => {
         console.log("Received new stock data:", data);
         setStockData(data);
         setRefreshTimestamp(new Date());
+        setLastDataTimestamp(data.timestamp);
       } catch (error) {
         console.error("Error parsing WebSocket data:", error);
       }
@@ -67,7 +69,9 @@ export const useStockData = () => {
   // Set initial data if available
   useEffect(() => {
     if (initialData && !stockData) {
-      setStockData(initialData as StockDataResponse);
+      const typedInitialData = initialData as StockDataResponse;
+      setStockData(typedInitialData);
+      setLastDataTimestamp(typedInitialData.timestamp);
     }
   }, [initialData, stockData]);
 
@@ -108,6 +112,7 @@ export const useStockData = () => {
     isError: isError && !stockData,
     refresh,
     lastRefreshTime,
+    lastDataTimestamp,
     connectionStatus,
     previousPrices
   };
