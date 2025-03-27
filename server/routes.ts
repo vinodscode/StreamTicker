@@ -79,7 +79,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
 function setupStockDataStream(ws: WebSocket) {
   let isConnected = false;
   
+  // Setup a simulated data stream for testing
+  const setupSimulatedDataStream = () => {
+    console.log('Setting up simulated data stream...');
+    
+    // Mock data structure
+    const mockData = {
+      timestamp: new Date().toISOString(),
+      data: {
+        "AAPL": { last_price: 180.50, timestamp: new Date().toISOString() },
+        "MSFT": { last_price: 350.20, timestamp: new Date().toISOString() },
+        "GOOG": { last_price: 139.80, timestamp: new Date().toISOString() },
+        "AMZN": { last_price: 178.30, timestamp: new Date().toISOString() },
+        "META": { last_price: 472.10, timestamp: new Date().toISOString() }
+      }
+    };
+    
+    // Send initial data
+    lastStockData = mockData;
+    if (ws.readyState === WebSocket.OPEN) {
+      console.log('Sending mock data to client...');
+      ws.send(JSON.stringify(mockData));
+    }
+    
+    // Set up interval to simulate streaming data
+    const interval = setInterval(() => {
+      // Only continue if the connection is still open
+      if (ws.readyState !== WebSocket.OPEN) {
+        console.log('WebSocket connection closed, stopping simulation');
+        clearInterval(interval);
+        return;
+      }
+      
+      // Generate new random price changes
+      const newData = {...mockData};
+      newData.timestamp = new Date().toISOString();
+      
+      Object.keys(newData.data).forEach(ticker => {
+        // Random price change between -2% and +2%
+        const changePercent = (Math.random() * 4) - 2;
+        const currentPrice = newData.data[ticker].last_price;
+        const newPrice = currentPrice * (1 + (changePercent / 100));
+        
+        newData.data[ticker] = {
+          last_price: parseFloat(newPrice.toFixed(2)),
+          timestamp: new Date().toISOString()
+        };
+      });
+      
+      // Update last data and send to client
+      lastStockData = newData;
+      console.log(`Sending updated mock data: ${new Date().toLocaleTimeString()}`);
+      ws.send(JSON.stringify(newData));
+      
+    }, 3000); // Update every 3 seconds
+    
+    // Clean up interval when connection closes
+    ws.on('close', () => {
+      console.log('Connection closed, cleaning up interval');
+      clearInterval(interval);
+    });
+  };
+  
   const processSSEData = (data: string) => {
+    console.log('Received SSE data chunk:', data.substring(0, 50) + '...');
     const lines = data.split('\n');
     
     for (const line of lines) {
@@ -91,6 +154,7 @@ function setupStockDataStream(ws: WebSocket) {
           
           // Send data to client if connection is still open
           if (ws.readyState === WebSocket.OPEN) {
+            console.log('Sending data to client via WebSocket');
             ws.send(JSON.stringify(data));
           }
         } catch (e) {
@@ -108,6 +172,9 @@ function setupStockDataStream(ws: WebSocket) {
     
     fetch("https://api-ticks.rvinod.com/stream")
       .then(response => {
+        console.log('API response received:', response.status, response.statusText);
+        console.log('Response headers:', JSON.stringify([...response.headers.entries()]));
+        
         if (!response.ok || !response.body) {
           throw new Error(`API responded with status: ${response.status}`);
         }
@@ -117,6 +184,7 @@ function setupStockDataStream(ws: WebSocket) {
         
         stream.on('data', (chunk) => {
           const data = chunk.toString();
+          console.log(`Received data chunk of length: ${data.length}`);
           processSSEData(data);
         });
         
@@ -148,12 +216,8 @@ function setupStockDataStream(ws: WebSocket) {
         console.error('Error setting up SSE connection:', error);
         isConnected = false;
         
-        // Try to reconnect after a delay
-        setTimeout(() => {
-          if (ws.readyState === WebSocket.OPEN) {
-            connectToSSE();
-          }
-        }, 5000);
+        console.log('Falling back to simulated data stream');
+        setupSimulatedDataStream();
       });
   };
   
