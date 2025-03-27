@@ -19,8 +19,8 @@ export default function StaleDataAlert({
   const [timeSinceUpdate, setTimeSinceUpdate] = useState(0);
 
   // For testing purposes: Uncomment to force stale data regardless of timestamp
-  const forceStaleForTesting = true;
-  // const forceStaleForTesting = false;
+  // const forceStaleForTesting = true;
+  const forceStaleForTesting = false;
 
   useEffect(() => {
     // Reset stale status when we get a new update
