@@ -1,5 +1,5 @@
 import { formatTimestamp, formatDateTime, calculateChange } from "@/lib/utils";
-import { ArrowUp, ArrowDown, RefreshCw, AlertCircle, Terminal, Server, Wifi } from "lucide-react";
+import { ArrowUp, ArrowDown, RefreshCw, AlertCircle, Terminal, Server, Wifi, AlertTriangle } from "lucide-react";
 import StockCard from "./StockCard";
 
 interface StockData {
@@ -16,6 +16,7 @@ interface TerminalBodyProps {
   isError: boolean;
   previousPrices: Record<string, number>;
   refresh: () => void;
+  staleStocks?: string[]; // Add stale stocks property
 }
 
 // Map to store exchange names for each stock symbol
@@ -33,7 +34,8 @@ export default function TerminalBody({
   isLoading, 
   isError,
   previousPrices, 
-  refresh
+  refresh,
+  staleStocks = [] // Default to empty array
 }: TerminalBodyProps) {
   const handleReconnect = () => {
     refresh();
@@ -139,6 +141,7 @@ export default function TerminalBody({
                     currentPrice={lastPrice}
                     previousPrice={prevPrice}
                     timestamp={tickerData.timestamp}
+                    isStale={staleStocks.includes(ticker)}
                   />
                 </div>
               );
@@ -177,15 +180,38 @@ export default function TerminalBody({
                     return (
                       <tr 
                         key={ticker} 
-                        className="border-b border-terminal-border/30 dark:hover:bg-terminal-header/20 light:hover:bg-gray-100 transition-colors"
+                        className={
+                          staleStocks.includes(ticker)
+                            ? "border-b border-red-500/30 dark:bg-red-900/20 light:bg-red-50 dark:hover:bg-red-900/30 light:hover:bg-red-100 transition-colors"
+                            : "border-b border-terminal-border/30 dark:hover:bg-terminal-header/20 light:hover:bg-gray-100 transition-colors"
+                        }
                       >
-                        <td className="py-3 px-4 font-bold text-terminal-accent">{ticker}</td>
+                        <td className="py-3 px-4 font-bold">
+                          <div className="flex items-center gap-1">
+                            {staleStocks.includes(ticker) && 
+                              <AlertTriangle size={14} className="dark:text-yellow-300 light:text-red-500" />
+                            }
+                            <span className={staleStocks.includes(ticker) ? "dark:text-red-300 light:text-red-600" : "text-terminal-accent"}>
+                              {ticker}
+                            </span>
+                            {staleStocks.includes(ticker) && 
+                              <span className="ml-1 text-xs dark:bg-red-900/50 light:bg-red-200 px-1 py-0.5 rounded dark:text-red-300 light:text-red-700">
+                                Stale
+                              </span>
+                            }
+                          </div>
+                        </td>
                         <td className="py-3 px-4 text-terminal-muted">{exchange}</td>
-                        <td className="py-3 px-4 text-right font-mono font-bold">{lastPrice.toFixed(2)}</td>
-                        <td className={`py-3 px-4 text-right ${changeClass} font-bold`}>
+                        <td className="py-3 px-4 text-right font-mono font-bold">
+                          {staleStocks.includes(ticker) 
+                            ? <span className="dark:text-gray-400 light:text-gray-500">{lastPrice.toFixed(2)}</span>
+                            : lastPrice.toFixed(2)
+                          }
+                        </td>
+                        <td className={`py-3 px-4 text-right ${staleStocks.includes(ticker) ? "dark:text-gray-400 light:text-gray-500" : changeClass} font-bold`}>
                           {changePrefix}{change}%
                         </td>
-                        <td className="py-3 px-4 text-right text-terminal-muted">
+                        <td className={`py-3 px-4 text-right ${staleStocks.includes(ticker) ? "dark:text-red-400 light:text-red-500" : "text-terminal-muted"}`}>
                           {formatTimestamp(tickerData.timestamp)}
                         </td>
                       </tr>

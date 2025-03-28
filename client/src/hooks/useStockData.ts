@@ -2,6 +2,15 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchStockData, StockDataResponse } from "@/lib/api";
 import { getTimeSince } from "@/lib/utils";
+import { playAlertSound, unlockAudio } from "@/lib/audio";
+
+// Interface for tracking individual stock timestamps
+interface StockTimestamps {
+  [ticker: string]: {
+    priceTimestamp: Date;
+    lastPrice: number;
+  };
+}
 
 export const useStockData = () => {
   const [previousPrices, setPreviousPrices] = useState<Record<string, number>>({});
@@ -11,6 +20,11 @@ export const useStockData = () => {
   const [lastPriceChangeTimestamp, setLastPriceChangeTimestamp] = useState<Date | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<"connected" | "disconnected">("disconnected");
   const [stockData, setStockData] = useState<StockDataResponse | null>(null);
+  
+  // Track per-stock update timestamps
+  const [stockTimestamps, setStockTimestamps] = useState<StockTimestamps>({});
+  // Track which stocks are currently stale
+  const [staleStocks, setStaleStocks] = useState<string[]>([]);
   
   const socketRef = useRef<WebSocket | null>(null);
   const pricesHistoryRef = useRef<Record<string, number>>({});
@@ -26,13 +40,14 @@ export const useStockData = () => {
     refetchOnWindowFocus: false,
   });
 
-  // Check if any stock price has changed
+  // Check if any stock price has changed and track per-stock timestamps
   const hasPriceChanged = useCallback((newData: StockDataResponse): boolean => {
     if (!pricesHistoryRef.current || Object.keys(pricesHistoryRef.current).length === 0) {
       return true; // First data load, treat as changed
     }
     
     let changed = false;
+    const updatedStockTimestamps = {...stockTimestamps};
     
     // Check each stock for price changes
     Object.entries(newData.data).forEach(([ticker, tickerData]) => {
@@ -44,11 +59,72 @@ export const useStockData = () => {
         changed = true;
         // Update price history
         pricesHistoryRef.current[ticker] = newPrice;
+        
+        // Update the stock's timestamp
+        updatedStockTimestamps[ticker] = {
+          priceTimestamp: new Date(),
+          lastPrice: newPrice
+        };
       }
     });
     
+    // Update the stock timestamps
+    setStockTimestamps(updatedStockTimestamps);
+    
     return changed;
-  }, []);
+  }, [stockTimestamps]);
+
+  // Check for stale stock data
+  useEffect(() => {
+    if (Object.keys(stockTimestamps).length === 0) return;
+    
+    const checkStaleness = () => {
+      const now = new Date();
+      const staleThreshold = 30000; // 30 seconds
+      const newStaleStocks: string[] = [];
+      
+      Object.entries(stockTimestamps).forEach(([ticker, data]) => {
+        const timeDiff = now.getTime() - data.priceTimestamp.getTime();
+        if (timeDiff > staleThreshold) {
+          newStaleStocks.push(ticker);
+        }
+      });
+      
+      // If we found new stale stocks, update the state and notify
+      if (newStaleStocks.length > 0 && JSON.stringify(newStaleStocks) !== JSON.stringify(staleStocks)) {
+        setStaleStocks(newStaleStocks);
+        
+        // Create a notification for the stale data
+        if (newStaleStocks.length > 0) {
+          const staleStocksList = newStaleStocks.join(', ');
+          const notification = {
+            id: Date.now().toString(),
+            message: `No price changes for over 30 seconds in stocks: ${staleStocksList}`,
+            timestamp: new Date(),
+            type: 'stale' as const
+          };
+          
+          // Add to notification history if the global function exists
+          // @ts-ignore
+          if (window.addStockNotification) {
+            // @ts-ignore
+            window.addStockNotification(notification);
+            
+            // Play alert sound
+            unlockAudio()
+              .then(() => playAlertSound(0.5))
+              .then(() => console.log("Stale data alert sound played"))
+              .catch(err => console.warn("Could not play stale data alert sound:", err));
+          }
+        }
+      }
+    };
+    
+    // Check for stale data every second
+    const intervalId = setInterval(checkStaleness, 1000);
+    
+    return () => clearInterval(intervalId);
+  }, [stockTimestamps, staleStocks]);
 
   // Connect to WebSocket
   useEffect(() => {
@@ -112,10 +188,19 @@ export const useStockData = () => {
       setLastDataTimestamp(typedInitialData.timestamp);
       setLastPriceChangeTimestamp(new Date());
       
+      // Initialize stock timestamps
+      const initialTimestamps: StockTimestamps = {};
+      
       // Initialize price history
       Object.entries(typedInitialData.data).forEach(([ticker, tickerData]) => {
         pricesHistoryRef.current[ticker] = tickerData.last_price;
+        initialTimestamps[ticker] = {
+          priceTimestamp: new Date(),
+          lastPrice: tickerData.last_price
+        };
       });
+      
+      setStockTimestamps(initialTimestamps);
     }
   }, [initialData, stockData]);
 
@@ -159,6 +244,7 @@ export const useStockData = () => {
     lastDataTimestamp,
     lastPriceChangeTimestamp,
     connectionStatus,
-    previousPrices
+    previousPrices,
+    staleStocks
   };
 };

@@ -18,7 +18,8 @@ export default function TerminalApp() {
     lastDataTimestamp,
     lastPriceChangeTimestamp,
     connectionStatus, 
-    previousPrices
+    previousPrices,
+    staleStocks
   } = useStockData();
 
   // Configure stale data alert for 30 seconds of inactivity
@@ -52,6 +53,7 @@ export default function TerminalApp() {
           lastPriceChangeTime={lastPriceChangeTimestamp}
           isActive={connectionStatus === "connected" && !isLoading && !isError}
           staleDurationMs={STALE_DATA_THRESHOLD_MS}
+          staleStocks={staleStocks}
         />
       </div>
       
@@ -70,6 +72,7 @@ export default function TerminalApp() {
           isError={isError}
           previousPrices={previousPrices}
           refresh={refresh}
+          staleStocks={staleStocks}
         />
         <TerminalFooter 
           connectionStatus={connectionStatus}
