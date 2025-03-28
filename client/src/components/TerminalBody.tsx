@@ -1,5 +1,9 @@
 import { formatTimestamp, formatDateTime, calculateChange } from "@/lib/utils";
-import { ArrowUp, ArrowDown, RefreshCw, AlertCircle, Terminal, Server, Wifi, AlertTriangle } from "lucide-react";
+import { 
+  ArrowUp, ArrowDown, RefreshCw, AlertCircle, 
+  BarChart3, Server, Wifi, AlertTriangle, 
+  LayoutDashboard, Table2, TrendingUp, Activity 
+} from "lucide-react";
 import StockCard from "./StockCard";
 
 interface StockData {
@@ -16,7 +20,7 @@ interface TerminalBodyProps {
   isError: boolean;
   previousPrices: Record<string, number>;
   refresh: () => void;
-  staleStocks?: string[]; // Add stale stocks property
+  staleStocks?: string[];
 }
 
 // Map to store exchange names for each stock symbol
@@ -35,44 +39,28 @@ export default function TerminalBody({
   isError,
   previousPrices, 
   refresh,
-  staleStocks = [] // Default to empty array
+  staleStocks = []
 }: TerminalBodyProps) {
   const handleReconnect = () => {
     refresh();
   };
 
   return (
-    <div className="flex-1 overflow-auto min-h-[calc(100vh-10rem)] terminal-content w-full">
-      {/* Welcome Message */}
-      <div className="p-6 dark:bg-gradient-to-r dark:from-gray-900 dark:to-gray-900/80 light:bg-gradient-to-r light:from-gray-100 light:to-gray-200 border-b border-terminal-border">
-        <div className="flex items-center">
-          <Terminal size={20} className="text-green-500 dark:text-green-400 mr-3" />
-          <span className="text-green-500 dark:text-green-400 font-mono font-bold text-lg">root@stock-terminal</span>
-          <span className="dark:text-terminal-text light:text-gray-600">:</span>
-          <span className="text-terminal-accent">~</span>
-          <span className="dark:text-terminal-text light:text-gray-600">$ </span>
-          <span className="font-bold dark:bg-terminal-header light:bg-gray-300 px-3 py-1 rounded ml-2 dark:text-white light:text-gray-700">connect api-ticks.rvinod.com</span>
-        </div>
-        <div className="mt-2 text-terminal-muted flex items-center gap-2 text-sm pl-9">
-          <Server size={16} className="text-terminal-accent" />
-          <span>Establishing secure WebSocket connection to financial data stream...</span>
-        </div>
-      </div>
-      
+    <div className="flex-1 overflow-auto p-4 md:p-6">
       {/* Loading State */}
       {isLoading && (
-        <div className="p-8 flex items-center justify-center">
-          <div className="dark:bg-gray-900/80 light:bg-white p-8 rounded-lg shadow-xl border border-terminal-border flex items-center gap-6">
-            <div className="text-yellow-500">
-              <RefreshCw size={40} className="animate-spin" />
+        <div className="h-full flex items-center justify-center">
+          <div className="bg-monitor-card p-6 rounded-lg shadow-lg border border-monitor flex items-center gap-4 max-w-lg">
+            <div className="text-monitor-accent">
+              <RefreshCw size={32} className="animate-spin" />
             </div>
-            <div className="dark:text-terminal-text light:text-gray-700">
-              <div className="text-lg font-bold text-terminal-accent mb-2">Establishing Connection</div>
-              <div className="text-terminal-muted mb-3 flex items-center">
-                <span className="mr-2">Fetching real-time financial data</span>
+            <div>
+              <div className="text-lg font-medium text-monitor-heading mb-2">Connecting to Market Feed</div>
+              <div className="text-monitor-muted mb-2 flex items-center">
+                <span className="mr-2">Establishing secure connection</span>
                 <LoadingDots />
               </div>
-              <div className="text-xs text-terminal-muted">Please wait while we connect to the live market feed...</div>
+              <div className="text-xs text-monitor-muted">Please wait while we connect to the live financial data stream...</div>
             </div>
           </div>
         </div>
@@ -80,22 +68,24 @@ export default function TerminalBody({
       
       {/* Error State */}
       {isError && (
-        <div className="p-8 flex items-center justify-center">
-          <div className="dark:bg-red-900/20 light:bg-red-100 dark:border-red-700 light:border-red-300 dark:text-white light:text-red-900 p-6 rounded-lg shadow-lg max-w-2xl">
-            <div className="dark:text-red-400 light:text-red-600 flex items-center">
-              <AlertCircle size={24} className="mr-3" />
-              <h2 className="text-xl font-bold">CONNECTION ERROR</h2>
+        <div className="h-full flex items-center justify-center">
+          <div className="bg-rose-900/10 border-rose-800/30 p-6 rounded-lg shadow-lg max-w-xl">
+            <div className="text-rose-400 flex items-center mb-3">
+              <AlertCircle size={28} className="mr-3" />
+              <h2 className="text-xl font-medium">Connection Error</h2>
             </div>
-            <p className="mt-3 dark:text-gray-300 light:text-red-700 pl-9">
-              Unable to connect to the stock data API. The server may be experiencing issues or your network connection may be disrupted.
+            <p className="text-monitor-text pl-10 mb-5">
+              Unable to connect to the market data API. This could be due to network issues or the server may be experiencing problems.
             </p>
-            <button 
-              onClick={handleReconnect}
-              className="mt-4 dark:bg-red-800 dark:hover:bg-red-700 light:bg-red-600 light:hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center ml-9"
-            >
-              <RefreshCw size={18} className="mr-2" />
-              Retry Connection
-            </button>
+            <div className="pl-10">
+              <button 
+                onClick={handleReconnect}
+                className="bg-rose-700 hover:bg-rose-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 shadow-sm"
+              >
+                <RefreshCw size={18} />
+                Retry Connection
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -103,39 +93,49 @@ export default function TerminalBody({
       {/* Data State */}
       {!isLoading && !isError && data && (
         <div>
-          <div className="p-4 dark:bg-gradient-to-r dark:from-green-900/20 light:bg-gradient-to-r light:from-green-100 dark:to-transparent light:to-transparent border-b dark:border-green-900/30 light:border-green-200">
-            <div className="text-terminal-positive flex items-center">
-              <div className="flex h-3 w-3 relative mr-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+          {/* Connection Status */}
+          <div className="mb-6 bg-emerald-900/10 border border-emerald-900/20 rounded-lg p-4 flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="bg-emerald-900/40 p-2 rounded-full">
+                <Wifi className="text-emerald-400" size={18} />
               </div>
-              <span className="font-medium">LIVE CONNECTION ESTABLISHED</span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="status-indicator status-active active-pulse"></span>
+                  <span className="font-medium text-emerald-400">Live Connection</span>
+                </div>
+                <div className="text-sm text-monitor-muted mt-0.5">
+                  Receiving real-time market data from ticks.rvinod.com
+                </div>
+              </div>
             </div>
-            <div className="text-terminal-muted text-sm mt-1 pl-5 flex items-center gap-2">
-              <Wifi size={14} className="text-green-500 dark:text-green-400" />
-              <span>Streaming real-time market data via secure WebSocket connection</span>
+            <div className="text-right text-sm text-monitor-muted">
+              <div>Last update: <span className="text-monitor-text font-medium tabular-nums">{formatDateTime(data.timestamp)}</span></div>
+              <div>Tracking <span className="text-monitor-accent">{Object.keys(data.data).length}</span> stocks from <span className="text-monitor-accent">5</span> exchanges</div>
             </div>
-          </div>
-          
-          {/* Data Output Header */}
-          <div className="px-6 py-3 text-terminal-muted text-sm uppercase tracking-wider flex justify-between items-center dark:bg-gray-900/70 light:bg-gray-100 border-b border-terminal-border">
-            <div className="flex items-center">
-              <div className="bg-terminal-accent text-black px-2 py-1 rounded font-bold mr-2 animate-pulse">LIVE</div>
-              <span>REAL-TIME FINANCIAL MARKET DATA</span>
-            </div>
-            <div className="font-mono">UPDATED: <span className="text-terminal-accent">{formatDateTime(data.timestamp)}</span></div>
           </div>
           
           {/* Data Cards Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 p-6 w-full">
-            {Object.entries(data.data).map(([ticker, tickerData]) => {
-              const lastPrice = tickerData.last_price;
-              const prevPrice = previousPrices[ticker] || lastPrice;
-              const exchange = EXCHANGE_MAP[ticker] || "Unknown";
-              
-              return (
-                <div className="h-[420px]" key={ticker}>
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-medium text-monitor-heading flex items-center gap-2">
+                <LayoutDashboard size={18} className="text-monitor-accent" />
+                Market Overview
+              </h2>
+              <div className="text-sm text-monitor-muted">
+                Real-time price updates with <span className="text-monitor-accent font-medium">30-second</span> stale data detection
+              </div>
+            </div>
+            
+            <div className="dashboard-grid">
+              {Object.entries(data.data).map(([ticker, tickerData]) => {
+                const lastPrice = tickerData.last_price;
+                const prevPrice = previousPrices[ticker] || lastPrice;
+                const exchange = EXCHANGE_MAP[ticker] || "Unknown";
+                
+                return (
                   <StockCard 
+                    key={ticker}
                     symbol={ticker}
                     exchange={exchange}
                     currentPrice={lastPrice}
@@ -143,129 +143,146 @@ export default function TerminalBody({
                     timestamp={tickerData.timestamp}
                     isStale={staleStocks.includes(ticker)}
                   />
-                </div>
-              );
-            })}
-          </div>
-          
-          {/* Data Table (alternative view) */}
-          <div className="mx-6 mb-6 overflow-hidden rounded-lg border border-terminal-border shadow-lg">
-            <div className="dark:bg-terminal-header light:bg-gray-100 px-4 py-3 flex items-center border-b border-terminal-border">
-              <Terminal size={16} className="text-terminal-accent mr-2" />
-              <span className="font-bold text-terminal-accent">DETAILED MARKET VIEW</span>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="dark:bg-gray-900/70 light:bg-gray-200 text-terminal-muted border-b border-terminal-border text-sm">
-                  <tr>
-                    <th className="text-left py-3 px-4 font-medium">TICKER</th>
-                    <th className="text-left py-3 px-4 font-medium">EXCHANGE</th>
-                    <th className="text-right py-3 px-4 font-medium">PRICE</th>
-                    <th className="text-right py-3 px-4 font-medium">CHANGE</th>
-                    <th className="text-right py-3 px-4 font-medium">UPDATED</th>
-                  </tr>
-                </thead>
-                <tbody className="dark:text-terminal-text light:text-gray-700">
-                  {Object.entries(data.data).map(([ticker, tickerData]) => {
-                    const lastPrice = tickerData.last_price;
-                    const prevPrice = previousPrices[ticker] || lastPrice;
-                    const change = calculateChange(lastPrice, prevPrice);
-                    const isPositive = parseFloat(change) >= 0;
-                    const changeClass = isPositive 
-                      ? 'text-terminal-positive' 
-                      : 'text-terminal-negative';
-                    const changePrefix = isPositive ? '+' : '';
-                    const exchange = EXCHANGE_MAP[ticker] || "Unknown";
-                    
-                    return (
-                      <tr 
-                        key={ticker} 
-                        className={
-                          staleStocks.includes(ticker)
-                            ? "border-b border-red-500/30 dark:bg-red-900/20 light:bg-red-50 dark:hover:bg-red-900/30 light:hover:bg-red-100 transition-colors"
-                            : "border-b border-terminal-border/30 dark:hover:bg-terminal-header/20 light:hover:bg-gray-100 transition-colors"
-                        }
-                      >
-                        <td className="py-3 px-4 font-bold">
-                          <div className="flex items-center gap-1">
-                            {staleStocks.includes(ticker) && 
-                              <AlertTriangle size={14} className="dark:text-yellow-300 light:text-red-500" />
-                            }
-                            <span className={staleStocks.includes(ticker) ? "dark:text-red-300 light:text-red-600" : "text-terminal-accent"}>
-                              {ticker}
-                            </span>
-                            {staleStocks.includes(ticker) && 
-                              <span className="ml-1 text-xs dark:bg-red-900/50 light:bg-red-200 px-1 py-0.5 rounded dark:text-red-300 light:text-red-700">
-                                Stale
-                              </span>
-                            }
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-terminal-muted">{exchange}</td>
-                        <td className="py-3 px-4 text-right font-mono font-bold">
-                          {staleStocks.includes(ticker) 
-                            ? <span className="dark:text-gray-400 light:text-gray-500">{lastPrice.toFixed(2)}</span>
-                            : lastPrice.toFixed(2)
-                          }
-                        </td>
-                        <td className={`py-3 px-4 text-right ${staleStocks.includes(ticker) ? "dark:text-gray-400 light:text-gray-500" : changeClass} font-bold`}>
-                          {changePrefix}{change}%
-                        </td>
-                        <td className={`py-3 px-4 text-right ${staleStocks.includes(ticker) ? "dark:text-red-400 light:text-red-500" : "text-terminal-muted"}`}>
-                          {formatTimestamp(tickerData.timestamp)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                );
+              })}
             </div>
           </div>
           
-          {/* Command History */}
-          <div className="mx-6 mb-6 dark:bg-gray-900/80 light:bg-white rounded-lg border border-terminal-border overflow-hidden shadow-lg">
-            <div className="border-b border-terminal-border px-4 py-3 dark:bg-terminal-header/50 light:bg-gray-100">
-              <div className="flex items-center">
-                <Terminal size={16} className="text-green-500 dark:text-green-400 mr-2" />
-                <span className="text-green-500 dark:text-green-400 font-mono">root@stock-terminal</span>
-                <span className="dark:text-terminal-text light:text-gray-600">:</span>
-                <span className="text-terminal-accent">~</span>
-                <span className="dark:text-terminal-text light:text-gray-600">$ </span>
-                <span className="font-bold dark:bg-gray-800 light:bg-gray-300 px-3 py-1 rounded ml-1 dark:text-white light:text-gray-700">stats --realtime</span>
+          {/* Data Table */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-medium text-monitor-heading flex items-center gap-2">
+                <Table2 size={18} className="text-monitor-accent" />
+                Detailed Market Data
+              </h2>
+              <div className="text-sm text-monitor-muted">
+                Consolidated view of all stock prices
               </div>
             </div>
-            <div className="p-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="dark:bg-gray-800/50 light:bg-gray-100 p-3 rounded-md border border-terminal-border/30">
-                  <div className="text-xs text-terminal-muted mb-1">TOTAL TICKERS</div>
-                  <div className="text-terminal-accent font-bold text-2xl">{Object.keys(data.data).length}</div>
+            
+            <div className="bg-monitor-card rounded-lg border border-monitor overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="data-table w-full">
+                  <thead>
+                    <tr>
+                      <th className="text-left">Symbol</th>
+                      <th className="text-left">Exchange</th>
+                      <th className="text-right">Current Price</th>
+                      <th className="text-right">Change</th>
+                      <th className="text-center">Status</th>
+                      <th className="text-right">Last Updated</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(data.data).map(([ticker, tickerData]) => {
+                      const lastPrice = tickerData.last_price;
+                      const prevPrice = previousPrices[ticker] || lastPrice;
+                      const change = calculateChange(lastPrice, prevPrice);
+                      const isPositive = parseFloat(change) >= 0;
+                      const changeClass = isPositive 
+                        ? 'text-monitor-positive' 
+                        : 'text-monitor-negative';
+                      const changePrefix = isPositive ? '+' : '';
+                      const exchange = EXCHANGE_MAP[ticker] || "Unknown";
+                      const isStale = staleStocks.includes(ticker);
+                      
+                      return (
+                        <tr 
+                          key={ticker} 
+                          className={isStale ? "row-stale" : ""}
+                        >
+                          <td>
+                            <div className="flex items-center gap-1.5">
+                              {isStale ? 
+                                <AlertTriangle size={15} className="text-monitor-warning" /> : 
+                                <Activity size={15} className="text-monitor-accent/70" />
+                              }
+                              <span className="font-medium">{ticker}</span>
+                            </div>
+                          </td>
+                          <td className="text-monitor-muted">{exchange}</td>
+                          <td className="text-right tabular-nums font-medium">
+                            {lastPrice.toFixed(2)}
+                          </td>
+                          <td className={`text-right tabular-nums font-medium ${changeClass}`}>
+                            <div className="flex items-center justify-end gap-1">
+                              {isPositive ? 
+                                <TrendingUp size={14} /> : 
+                                <ArrowDown size={14} />
+                              }
+                              {changePrefix}{change}%
+                            </div>
+                          </td>
+                          <td className="text-center">
+                            {isStale ? (
+                              <span className="badge badge-danger">Stale</span>
+                            ) : (
+                              <span className="badge badge-success">Active</span>
+                            )}
+                          </td>
+                          <td className="text-right tabular-nums text-monitor-muted">
+                            {formatTimestamp(tickerData.timestamp)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          {/* Market Summary */}
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-medium text-monitor-heading flex items-center gap-2">
+                <BarChart3 size={18} className="text-monitor-accent" />
+                Market Summary
+              </h2>
+              <div className="text-sm text-monitor-muted">
+                Connection status and monitoring metrics
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-monitor-card border border-monitor rounded-lg p-4 flex items-center gap-4">
+                <div className="p-3 rounded-full bg-monitor-accent/10">
+                  <Server size={24} className="text-monitor-accent" />
                 </div>
-                <div className="dark:bg-gray-800/50 light:bg-gray-100 p-3 rounded-md border border-terminal-border/30">
-                  <div className="text-xs text-terminal-muted mb-1">CONNECTION</div>
-                  <div className="text-terminal-accent font-bold text-2xl flex items-center">
-                    <span className="inline-block h-2 w-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-                    WebSocket
+                <div>
+                  <div className="text-sm text-monitor-muted mb-1">Connection Type</div>
+                  <div className="text-xl font-medium text-monitor-text">WebSocket</div>
+                </div>
+              </div>
+              
+              <div className="bg-monitor-card border border-monitor rounded-lg p-4 flex items-center gap-4">
+                <div className="p-3 rounded-full bg-emerald-500/10">
+                  <Wifi size={24} className="text-emerald-500" />
+                </div>
+                <div>
+                  <div className="text-sm text-monitor-muted mb-1">Connection Status</div>
+                  <div className="text-xl font-medium text-emerald-500 flex items-center gap-2">
+                    <span className="status-indicator status-active active-pulse"></span>
+                    Active
                   </div>
                 </div>
-                <div className="dark:bg-gray-800/50 light:bg-gray-100 p-3 rounded-md border border-terminal-border/30">
-                  <div className="text-xs text-terminal-muted mb-1">STATUS</div>
-                  <div className="text-terminal-positive font-bold text-2xl">ACTIVE</div>
+              </div>
+              
+              <div className="bg-monitor-card border border-monitor rounded-lg p-4 flex items-center gap-4">
+                <div className="p-3 rounded-full bg-amber-500/10">
+                  <AlertTriangle size={24} className="text-amber-500" />
+                </div>
+                <div>
+                  <div className="text-sm text-monitor-muted mb-1">Stale Feeds</div>
+                  <div className="text-xl font-medium text-amber-500">
+                    {staleStocks.length} of {Object.keys(data.data).length}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       )}
-      
-      {/* Command Input */}
-      <div className="mx-6 mb-6 flex items-center dark:bg-terminal-header/70 light:bg-white p-3 rounded-md border border-terminal-border shadow-lg">
-        <Terminal size={16} className="text-green-500 dark:text-green-400 mr-2" />
-        <span className="text-green-500 dark:text-green-400 font-mono">root@stock-terminal</span>
-        <span className="dark:text-terminal-text light:text-gray-600">:</span>
-        <span className="text-terminal-accent">~</span>
-        <span className="dark:text-terminal-text light:text-gray-600">$ </span>
-        <span className="ml-1 inline-block w-2 h-6 bg-terminal-accent terminal-cursor"></span>
-      </div>
     </div>
   );
 }
@@ -273,9 +290,9 @@ export default function TerminalBody({
 const LoadingDots = () => {
   return (
     <div className="flex space-x-1">
-      <div className="w-2 h-2 rounded-full bg-yellow-500 animate-ping" style={{ animationDelay: "0ms" }}></div>
-      <div className="w-2 h-2 rounded-full bg-yellow-500 animate-ping" style={{ animationDelay: "300ms" }}></div>
-      <div className="w-2 h-2 rounded-full bg-yellow-500 animate-ping" style={{ animationDelay: "600ms" }}></div>
+      <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" style={{ animationDelay: "0ms" }}></div>
+      <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" style={{ animationDelay: "300ms" }}></div>
+      <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" style={{ animationDelay: "600ms" }}></div>
     </div>
   );
 };

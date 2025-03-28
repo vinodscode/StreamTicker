@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
-import { ArrowUpCircle, ArrowDownCircle, Clock, AlertTriangle } from "lucide-react";
+import { 
+  ArrowUp, ArrowDown, Clock, AlertTriangle, 
+  BarChart4, Building, Activity, AlertCircle, ExternalLink 
+} from "lucide-react";
 import { formatTimestamp, calculateChange } from "@/lib/utils";
 
 interface PriceHistory {
@@ -13,7 +16,7 @@ interface StockCardProps {
   currentPrice: number;
   previousPrice: number;
   timestamp: string;
-  isStale?: boolean; // Add isStale property
+  isStale?: boolean;
 }
 
 export default function StockCard({
@@ -70,126 +73,174 @@ export default function StockCard({
     }
   }, [currentPrice, timestamp, priceHistory, symbol, exchange]);
   
-  // Generate classes for stale stock cards
-  const cardClasses = isStale
-    ? "stock-card dark:bg-red-950/30 light:bg-red-50 w-full h-full flex flex-col border-2 dark:border-red-700/50 light:border-red-300/50" 
-    : "stock-card dark:bg-gradient-to-b dark:from-gray-800 dark:to-gray-900 light:bg-white w-full h-full flex flex-col";
-    
-  const headerClasses = isStale
-    ? "dark:bg-red-900/30 light:bg-red-100 px-4 py-3 border-b border-terminal-border flex justify-between items-center"
-    : "dark:bg-terminal-header/70 light:bg-gray-100 px-4 py-3 border-b border-terminal-border flex justify-between items-center";
-  
   return (
-    <div className={cardClasses}>
+    <div className={`stock-card ${isStale ? 'stale-card' : ''}`}>
       {/* Card Header */}
-      <div className={headerClasses}>
-        <div>
-          <h3 className="text-xl font-bold dark:text-white light:text-gray-800 font-mono flex items-center gap-1">
-            {isStale && <AlertTriangle size={16} className="dark:text-yellow-300 light:text-red-500" />}
+      <div className="card-header">
+        <div className="flex items-center gap-1.5">
+          {isStale ? (
+            <AlertTriangle size={16} className="text-monitor-warning" />
+          ) : (
+            <Activity size={16} className="text-monitor-accent" />
+          )}
+          <h3 className="text-monitor-heading text-lg font-semibold">
             {symbol}
           </h3>
-          <div className="flex items-center text-xs dark:text-gray-400 light:text-gray-500">
-            <span className="dark:bg-gray-700 light:bg-gray-200 px-2 py-0.5 rounded text-terminal-accent">{exchange}</span>
-            {isStale && (
-              <span className="ml-2 dark:bg-red-900/50 light:bg-red-200 px-2 py-0.5 rounded dark:text-red-300 light:text-red-700">
-                Stale Data
-              </span>
-            )}
+        </div>
+        <div>
+          <div className="flex items-center gap-1.5">
+            <Building size={13} className="text-monitor-muted" />
+            <span className="badge badge-success">
+              {exchange}
+            </span>
           </div>
         </div>
-        <div className="text-right">
-          <div className="text-2xl font-mono font-bold">
-            <span className={
+      </div>
+      
+      {/* Price Display */}
+      <div className={`p-4 border-b border-monitor`}>
+        <div className="flex justify-between items-center">
+          <div className="flex flex-col items-start">
+            <span className="text-monitor-muted text-xs mb-1">Current Price</span>
+            <span className={`text-3xl font-bold tabular-nums ${
               isStale 
-                ? "dark:text-gray-400 light:text-gray-500" 
+                ? "text-monitor-muted" 
                 : isPriceUp 
-                  ? "text-green-500 dark:text-green-400" 
-                  : "text-red-500 dark:text-red-400"
-            }>
+                  ? "text-monitor-positive" 
+                  : "text-monitor-negative"
+            }`}>
               {currentPrice.toFixed(2)}
             </span>
           </div>
-          <div className="flex items-center justify-end space-x-1">
-            {!isStale && (isPriceUp ? (
-              <ArrowUpCircle className="text-green-500 dark:text-green-400 w-5 h-5" />
-            ) : (
-              <ArrowDownCircle className="text-red-500 dark:text-red-400 w-5 h-5" />
-            ))}
-            <span className={
+          
+          <div className="flex flex-col items-end">
+            <span className="text-monitor-muted text-xs mb-1">Change</span>
+            <div className={`flex items-center text-lg font-bold ${
               isStale 
-                ? "text-sm font-bold dark:text-gray-400 light:text-gray-500" 
-                : `text-sm font-bold ${isPriceUp ? "text-green-500 dark:text-green-400" : "text-red-500 dark:text-red-400"}`
-            }>
-              {isPriceUp ? "+" : ""}{changeText}
-            </span>
+                ? "text-monitor-muted" 
+                : isPriceUp 
+                  ? "text-monitor-positive" 
+                  : "text-monitor-negative"
+            }`}>
+              {!isStale && (isPriceUp ? (
+                <ArrowUp className="mr-1" size={18} />
+              ) : (
+                <ArrowDown className="mr-1" size={18} />
+              ))}
+              <span>{isPriceUp ? "+" : ""}{changeText}</span>
+            </div>
           </div>
         </div>
       </div>
       
       {/* Last Update Info */}
-      <div className={
-        isStale 
-          ? "px-4 py-2 dark:bg-red-900/20 light:bg-red-50 flex items-center text-xs dark:text-red-400 light:text-red-600" 
-          : "px-4 py-2 dark:bg-gray-900/50 light:bg-gray-50 flex items-center text-xs dark:text-gray-400 light:text-gray-500"
-      }>
-        <Clock className="w-3 h-3 mr-1" />
-        <span>{isStale ? "Last update (stale): " : "Last update: "}{formatTimestamp(timestamp)}</span>
+      <div className={`px-4 py-2 border-b border-monitor flex items-center justify-between ${
+        isStale ? "bg-rose-900/10 dark:text-monitor-negative light:text-rose-600" : ""
+      }`}>
+        <div className="flex items-center gap-1.5">
+          <Clock size={14} />
+          <span className="text-xs">
+            Last update: {formatTimestamp(timestamp)}
+          </span>
+        </div>
+        {isStale && (
+          <span className="badge badge-danger">Stale</span>
+        )}
       </div>
       
       {/* Price History Section */}
-      <div className="p-4 flex-grow overflow-hidden">
-        <div className="flex items-center justify-between mb-2">
-          <h4 className="text-sm font-medium dark:text-gray-300 light:text-gray-700">Price History</h4>
-          <span className="text-xs text-terminal-muted">Last 10 Trades</span>
+      <div className="flex-grow flex flex-col">
+        <div className="flex items-center justify-between p-4 pb-2">
+          <div className="flex items-center gap-1.5">
+            <BarChart4 size={15} className="text-monitor-accent" />
+            <h4 className="text-monitor-heading text-sm">
+              Price History
+            </h4>
+          </div>
+          <span className="text-xs text-monitor-muted">
+            Last 10 updates
+          </span>
         </div>
-        <div className="h-[280px] overflow-y-auto dark:scrollbar-thin dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-900">
+        
+        <div className="flex-grow overflow-hidden px-4 pb-4">
           {priceHistory.length > 0 ? (
-            <table className="w-full text-left text-xs">
-              <thead className="sticky top-0 dark:bg-gray-900/80 light:bg-gray-100 backdrop-blur-sm">
-                <tr className="text-terminal-accent">
-                  <th className="px-2 py-1 font-medium">#</th>
-                  <th className="px-2 py-1 font-medium">Time</th>
-                  <th className="px-2 py-1 text-right font-medium">Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                {priceHistory.map((entry, index) => {
-                  // Calculate price difference with previous entry
-                  const prevEntry = priceHistory[index + 1];
-                  const priceDiff = prevEntry ? entry.price - prevEntry.price : 0;
-                  const priceChangeClass = priceDiff >= 0 
-                    ? "text-green-500 dark:text-green-400" 
-                    : "text-red-500 dark:text-red-400";
-                  
-                  return (
-                    <tr 
-                      key={index} 
-                      className="border-b dark:border-gray-800/50 light:border-gray-200 dark:hover:bg-gray-800/30 light:hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-2 py-1.5 dark:text-gray-500 light:text-gray-400">{index + 1}</td>
-                      <td className="px-2 py-1.5 dark:text-gray-300 light:text-gray-600">
-                        {new Date(entry.timestamp).toLocaleTimeString('en-IN', {
-                          hour: "2-digit" as const,
-                          minute: "2-digit" as const,
-                          second: "2-digit" as const,
-                          hour12: true,
-                          timeZone: 'Asia/Kolkata'
-                        })}
-                      </td>
-                      <td className={`px-2 py-1.5 text-right font-mono font-medium ${priceChangeClass}`}>
-                        {entry.price.toFixed(2)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <div className="h-[240px] overflow-y-auto">
+              <table className="data-table w-full text-sm">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th className="text-right">Price</th>
+                    <th className="text-right">Change</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {priceHistory.map((entry, index) => {
+                    // Calculate price difference with previous entry
+                    const prevEntry = priceHistory[index + 1];
+                    const priceDiff = prevEntry ? entry.price - prevEntry.price : 0;
+                    const priceDiffFormatted = priceDiff.toFixed(2);
+                    const priceDiffClass = !prevEntry ? "" : priceDiff > 0 
+                      ? "text-monitor-positive" 
+                      : priceDiff < 0 
+                        ? "text-monitor-negative" 
+                        : "text-monitor-muted";
+                    
+                    return (
+                      <tr key={index}>
+                        <td className="text-monitor-muted">
+                          {new Date(entry.timestamp).toLocaleTimeString('en-IN', {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit",
+                            hour12: true,
+                            timeZone: 'Asia/Kolkata'
+                          })}
+                        </td>
+                        <td className="text-right tabular-nums font-medium text-monitor-text">
+                          {entry.price.toFixed(2)}
+                        </td>
+                        <td className={`text-right tabular-nums font-medium ${priceDiffClass}`}>
+                          {!prevEntry ? "-" : (
+                            <span className="flex items-center justify-end gap-1">
+                              {priceDiff > 0 ? (
+                                <ArrowUp size={12} />
+                              ) : priceDiff < 0 ? (
+                                <ArrowDown size={12} />
+                              ) : null}
+                              {priceDiff === 0 ? "-" : (priceDiff > 0 ? "+" : "") + priceDiffFormatted}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <div className="flex items-center justify-center h-full">
-              <p className="dark:text-gray-500 light:text-gray-400 italic">No price history available yet</p>
+              <div className="text-center">
+                <AlertCircle className="mx-auto mb-2 text-monitor-muted" size={24} />
+                <p className="text-monitor-muted text-sm">No price history available yet</p>
+                <p className="text-xs text-monitor-muted/70 mt-1">Updates will appear here</p>
+              </div>
             </div>
           )}
         </div>
+      </div>
+      
+      {/* Card Footer */}
+      <div className="card-footer flex items-center justify-between text-xs">
+        <div className="flex items-center">
+          <span className={`status-indicator ${isStale ? 'status-stale stale-pulse' : 'status-active active-pulse'}`}></span>
+          <span className="text-monitor-muted">
+            {isStale ? 'Data feed stale' : 'Data feed active'}
+          </span>
+        </div>
+        <a href="#" className="text-monitor-accent flex items-center opacity-75 hover:opacity-100 transition-opacity">
+          <span className="mr-1">Details</span>
+          <ExternalLink size={12} />
+        </a>
       </div>
     </div>
   );

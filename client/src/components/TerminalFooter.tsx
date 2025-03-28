@@ -1,4 +1,7 @@
-import { Wifi, Clock, AlertTriangle, Terminal, GitBranch, Shield } from "lucide-react";
+import { 
+  Wifi, Clock, AlertTriangle, BarChart3, 
+  GitBranch, Shield, Server, Activity 
+} from "lucide-react";
 
 interface TerminalFooterProps {
   connectionStatus: "connected" | "disconnected";
@@ -9,55 +12,58 @@ export default function TerminalFooter({
   connectionStatus, 
   lastRefreshTime 
 }: TerminalFooterProps) {
-  const statusClassname = connectionStatus === "connected" 
-    ? "text-terminal-positive" 
-    : "text-terminal-negative";
+  const isConnected = connectionStatus === "connected";
   
-  const statusText = connectionStatus === "connected" 
-    ? "Connected (WebSocket)" 
+  const statusClassname = isConnected
+    ? "text-monitor-positive" 
+    : "text-monitor-negative";
+  
+  const statusText = isConnected
+    ? "Connected" 
     : "Disconnected";
 
-  const StatusIcon = connectionStatus === "connected" 
+  const StatusIcon = isConnected
     ? Wifi 
     : AlertTriangle;
 
   return (
-    <div className="px-6 py-4 dark:bg-gradient-to-r dark:from-gray-900 dark:to-terminal-header/90 light:bg-gradient-to-r light:from-gray-100 light:to-gray-200 border-t border-terminal-border flex justify-between items-center text-sm text-terminal-muted">
-      <div className="flex items-center gap-6">
-        <div className="flex items-center dark:bg-terminal-header/50 light:bg-white/80 px-3 py-1.5 rounded-full border border-terminal-border/50">
-          <Terminal size={14} className="text-terminal-accent mr-2" />
-          <span className="font-medium">StockTerminal v1.0</span>
+    <div className="bg-monitor-panel border-t border-monitor py-3 px-4 flex flex-wrap md:flex-nowrap justify-between items-center gap-3 text-xs text-monitor-muted">
+      {/* Left side - App information */}
+      <div className="flex items-center gap-4 flex-wrap md:flex-nowrap">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-monitor-card/50 rounded-md">
+          <BarChart3 size={15} className="text-monitor-accent" />
+          <span className="font-medium">MarketMonitor v1.0</span>
         </div>
         
-        <div className="flex items-center">
-          <GitBranch size={14} className="text-terminal-accent mr-2" />
+        <div className="flex items-center gap-1.5">
+          <Server size={15} className="text-monitor-accent" />
           <span>API: ticks.rvinod.com</span>
         </div>
       </div>
       
-      <div className="flex items-center gap-6">
-        <div className="flex items-center dark:bg-gray-900/60 light:bg-white/80 px-3 py-1.5 rounded-full border border-terminal-border/30">
-          <div className="flex mr-2">
-            <div className={`${connectionStatus === "connected" ? "bg-green-500" : "bg-red-500"} w-2 h-2 rounded-full relative`}>
-              {connectionStatus === "connected" && (
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              )}
-            </div>
-          </div>
-          <StatusIcon size={14} className={`${statusClassname} mr-1`} />
-          <span>Status: </span>
-          <span className={`${statusClassname} font-semibold ml-1`}>{statusText}</span>
+      {/* Right side - Status information */}
+      <div className="flex items-center gap-4 flex-wrap md:flex-nowrap">
+        {/* Connection status */}
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-monitor-card/50 rounded-md">
+          <span className={`status-indicator ${isConnected ? 'status-active active-pulse' : 'status-stale stale-pulse'}`}></span>
+          <StatusIcon size={14} className={statusClassname} />
+          <span className={`${statusClassname} font-medium ml-0.5`}>
+            {statusText}
+            <span className="text-monitor-muted ml-1">(WebSocket)</span>
+          </span>
         </div>
         
-        <div className="flex items-center dark:bg-gray-900/60 light:bg-white/80 px-3 py-1.5 rounded-full border border-terminal-border/30">
-          <Clock size={14} className="mr-2 text-terminal-accent" />
-          <span>Updated: </span>
-          <span className="dark:text-terminal-text light:text-gray-700 ml-1 font-mono">{lastRefreshTime}</span>
+        {/* Last update time */}
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-monitor-card/50 rounded-md">
+          <Clock size={14} className="text-monitor-accent" />
+          <span>Last update:</span>
+          <span className="text-monitor-text tabular-nums ml-0.5">{lastRefreshTime}</span>
         </div>
         
-        <div className="flex items-center">
-          <Shield size={14} className="text-green-500 mr-1" />
-          <span className="text-xs text-green-500">Secure Connection</span>
+        {/* Connection security */}
+        <div className="flex items-center gap-1.5">
+          <Shield size={14} className="text-emerald-500" />
+          <span className="text-emerald-500">Secure</span>
         </div>
       </div>
     </div>

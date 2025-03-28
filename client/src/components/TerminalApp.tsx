@@ -46,7 +46,7 @@ export default function TerminalApp() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col w-full">
+    <div className="min-h-screen flex flex-col w-full bg-monitor-body">
       {/* Stale Data Alert - Integrated into the application's UI */}
       <div className="w-full sticky top-0 z-10">
         <StaleDataAlert 
@@ -57,9 +57,9 @@ export default function TerminalApp() {
         />
       </div>
       
-      <div className="w-full flex-grow bg-terminal-bg overflow-hidden flex flex-col font-mono relative transition-all duration-300">
-        {/* Gradient overlay at the top */}
-        <div className="w-full h-1 bg-gradient-to-r from-cyan-500 to-purple-500"></div>
+      <div className="w-full flex-grow overflow-hidden flex flex-col relative transition-all duration-300">
+        {/* Gradient accent at the top */}
+        <div className="w-full h-1 bg-gradient-to-r from-blue-500 to-violet-500"></div>
         
         <TerminalHeader 
           onRefresh={refresh} 

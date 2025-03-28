@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Bell, AlertTriangle, VolumeX, Volume2, RefreshCw } from "lucide-react";
+import { Bell, AlertTriangle, VolumeX, Volume2, RefreshCw, ShieldAlert } from "lucide-react";
 import { playAlertSound, unlockAudio } from "@/lib/audio";
 import { formatTimestamp } from "@/lib/utils";
 
@@ -7,7 +7,7 @@ interface StaleDataAlertProps {
   lastPriceChangeTime: Date | null;
   isActive: boolean;
   staleDurationMs: number;
-  staleStocks?: string[]; // Add the stale stocks list
+  staleStocks?: string[];
 }
 
 export default function StaleDataAlert({ 
@@ -31,27 +31,30 @@ export default function StaleDataAlert({
   const isDisplayed = staleStocks.length > 0 && isActive;
 
   return (
-    <div className={`w-full transition-all duration-300 ${isDisplayed ? 'opacity-100' : 'opacity-0 h-0'}`}>
+    <div className={`w-full transition-all duration-300 ${isDisplayed ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
       {isDisplayed && (
-        <div className="dark:bg-gradient-to-r dark:from-red-900 dark:to-red-800 dark:border-red-700 light:bg-gradient-to-r light:from-red-100 light:to-red-200 light:border-red-300 border-b dark:text-white light:text-red-900 py-3 px-4 shadow-lg transition-all duration-300 flex items-center gap-3 w-full">
-          <div className="animate-pulse">
-            <AlertTriangle className="dark:text-yellow-300 light:text-red-500 h-8 w-8" />
+        <div className="bg-monitor-alert border-b border-monitor-alert-border shadow-lg transition-all duration-300 flex items-center gap-4 w-full p-4">
+          <div className="flex-shrink-0 animate-pulse">
+            <ShieldAlert className="text-monitor-alert-icon h-8 w-8" />
           </div>
+          
           <div className="flex-1">
-            <div className="font-bold text-lg dark:text-yellow-300 light:text-red-600 flex items-center gap-2">
+            <div className="font-bold text-lg text-monitor-alert-title flex items-center gap-2">
               <Bell className="h-4 w-4" />
-              <span>DATA FEED ALERT</span>
+              <span>STALE DATA DETECTED</span>
             </div>
-            <p className="text-sm my-1">
-              The following stocks have not updated for more than 30 seconds and may be stale:
-              <span className="font-mono font-bold block mt-1 dark:text-yellow-200 light:text-red-600">
+            
+            <p className="text-sm my-1.5 text-monitor-alert-text">
+              The following stocks have not updated in more than 30 seconds:
+              <span className="font-mono font-medium block mt-1.5 text-monitor-alert-highlight bg-monitor-alert-badge/20 px-3 py-1.5 rounded-md overflow-x-auto whitespace-nowrap">
                 {staleStocks.join(', ')}
               </span>
             </p>
-            <div className="text-xs dark:text-gray-300 light:text-red-700 mt-1 flex items-center gap-1">
+            
+            <div className="text-xs text-monitor-alert-muted mt-2 flex items-center gap-1.5">
               <RefreshCw size={12} className="animate-spin" />
               <span>
-                Last global price change: {lastPriceChangeTime 
+                Last price update: {lastPriceChangeTime 
                   ? new Date(lastPriceChangeTime).toLocaleTimeString('en-IN', {
                       hour: "2-digit" as const,
                       minute: "2-digit" as const,
@@ -63,20 +66,23 @@ export default function StaleDataAlert({
               </span>
             </div>
           </div>
-          <button 
-            onClick={() => {
-              // Toggle sound setting
-              setSoundEnabled(!soundEnabled);
-              // Try to unlock audio on click
-              if (!soundEnabled) {
-                unlockAudio().catch(e => console.log('Could not unlock audio:', e));
-              }
-            }} 
-            className="p-2 dark:hover:bg-red-950 dark:bg-red-950/50 light:hover:bg-red-300 light:bg-red-200 rounded-full transition-colors"
-            title={soundEnabled ? "Mute alert sound" : "Enable alert sound"}
-          >
-            {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
-          </button>
+          
+          <div className="flex-shrink-0">
+            <button 
+              onClick={() => {
+                // Toggle sound setting
+                setSoundEnabled(!soundEnabled);
+                // Try to unlock audio on click
+                if (!soundEnabled) {
+                  unlockAudio().catch(e => console.log('Could not unlock audio:', e));
+                }
+              }} 
+              className="p-2 bg-monitor-alert-button hover:bg-monitor-alert-button-hover rounded-md transition-colors"
+              title={soundEnabled ? "Mute alert sound" : "Enable alert sound"}
+            >
+              {soundEnabled ? <Volume2 size={18} className="text-monitor-alert-button-icon" /> : <VolumeX size={18} className="text-monitor-alert-button-icon" />}
+            </button>
+          </div>
         </div>
       )}
     </div>
