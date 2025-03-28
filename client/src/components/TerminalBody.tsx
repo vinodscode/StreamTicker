@@ -21,9 +21,9 @@ interface TerminalBodyProps {
 // Map to store exchange names for each stock symbol
 const EXCHANGE_MAP: Record<string, string> = {
   "CRUDEOIL25APRFUT": "MCX",
-  "SENSEX25401FUT": "BFO",
-  "NIFTY25APRFUT": "NFO",
-  "INFY": "BSE",
+  "SENSEX25401FUT": "BSE",
+  "NIFTY25APRFUT": "NSE",
+  "INFY": "NSE",
   "USDINR25APRFUT": "CDS",
   "RELIANCE": "NSE"
 };
@@ -111,21 +111,22 @@ export default function TerminalBody({
           </div>
           
           {/* Data Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 mb-4">
             {Object.entries(data.data).map(([ticker, tickerData]) => {
               const lastPrice = tickerData.last_price;
               const prevPrice = previousPrices[ticker] || lastPrice;
               const exchange = EXCHANGE_MAP[ticker] || "Unknown";
               
               return (
-                <StockCard 
-                  key={ticker}
-                  symbol={ticker}
-                  exchange={exchange}
-                  currentPrice={lastPrice}
-                  previousPrice={prevPrice}
-                  timestamp={tickerData.timestamp}
-                />
+                <div className="h-[350px]" key={ticker}>
+                  <StockCard 
+                    symbol={ticker}
+                    exchange={exchange}
+                    currentPrice={lastPrice}
+                    previousPrice={prevPrice}
+                    timestamp={tickerData.timestamp}
+                  />
+                </div>
               );
             })}
           </div>
