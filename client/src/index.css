@@ -8,28 +8,44 @@
   }
 
   body {
-    @apply font-mono antialiased bg-gray-950 text-white min-h-screen w-full m-0 p-0;
-  }
-  
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    @apply bg-gray-900;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    @apply bg-gray-800 rounded;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-700;
+    @apply font-sans antialiased bg-gradient-to-br from-gray-900 to-gray-800 text-foreground min-h-screen flex items-center justify-center p-4;
   }
 }
 
 @layer components {
+  /* Terminal-specific colors */
+  .bg-terminal-bg {
+    @apply bg-black;
+  }
+  
+  .bg-terminal-header {
+    @apply bg-gray-900;
+  }
+  
+  .border-terminal-border {
+    @apply border-gray-700;
+  }
+  
+  .text-terminal-text {
+    @apply text-gray-200;
+  }
+  
+  .text-terminal-muted {
+    @apply text-gray-500;
+  }
+  
+  .text-terminal-accent {
+    @apply text-cyan-400;
+  }
+  
+  .text-terminal-positive {
+    @apply text-green-400;
+  }
+  
+  .text-terminal-negative {
+    @apply text-red-400;
+  }
+  
   /* Animation for blinking cursor */
   @keyframes blink {
     0%, 100% { opacity: 1; }
@@ -38,5 +54,27 @@
   
   .terminal-cursor {
     animation: blink 1s infinite;
+  }
+  
+  /* Scrollbar styling for terminal content */
+  .terminal-content::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .terminal-content::-webkit-scrollbar-track {
+    @apply bg-gray-900;
+  }
+  
+  .terminal-content::-webkit-scrollbar-thumb {
+    @apply bg-gray-700 rounded;
+  }
+  
+  .terminal-content::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-600;
+  }
+  
+  /* Card styling */
+  .stock-card {
+    @apply bg-gray-800 border border-gray-700 rounded-md p-4 transition-all duration-300 hover:border-cyan-700 hover:shadow-lg hover:shadow-cyan-900/20;
   }
 }

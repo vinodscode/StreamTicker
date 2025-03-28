@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Clock } from "lucide-react";
-import { formatTimestamp } from "@/lib/utils";
+import { ArrowUpCircle, ArrowDownCircle, Clock } from "lucide-react";
+import { formatTimestamp, calculateChange } from "@/lib/utils";
 
 interface PriceHistory {
   price: number;
@@ -26,7 +26,7 @@ export default function StockCard({
   
   const change = currentPrice - previousPrice;
   const isPriceUp = change >= 0;
-  const changeValue = isPriceUp ? `+${change.toFixed(2)}` : change.toFixed(2);
+  const changeText = calculateChange(currentPrice, previousPrice);
   
   // Update price history whenever the price changes
   useEffect(() => {
@@ -46,57 +46,58 @@ export default function StockCard({
   }, [currentPrice, timestamp, priceHistory]);
   
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-lg shadow-md w-full h-full flex flex-col">
-      <div className="p-4 pb-2">
-        <div className="flex justify-between items-start mb-1">
-          <div>
-            <h3 className="text-lg font-bold text-white">{symbol}</h3>
-            <p className="text-xs text-gray-500">{exchange}</p>
-          </div>
-          <div className="text-right">
-            <div className="text-xl font-mono font-bold text-green-400">
-              {currentPrice.toFixed(2)}
-            </div>
-            <div className="flex items-center justify-end">
-              <span className={`text-xs font-medium ${isPriceUp ? "text-green-400" : "text-red-400"}`}>
-                {changeValue}
-              </span>
-            </div>
-          </div>
+    <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow duration-300 w-full h-full flex flex-col">
+      <div className="flex justify-between items-center mb-3">
+        <div>
+          <h3 className="text-lg font-bold text-white">{symbol}</h3>
+          <p className="text-xs text-gray-400">{exchange}</p>
         </div>
-        
-        <div className="flex items-center text-xs text-gray-500 mb-1">
-          <Clock className="w-3 h-3 mr-1" />
-          <span>Last update: {formatTimestamp(timestamp)}</span>
+        <div className="text-right">
+          <div className="text-xl font-mono font-bold">
+            <span className={isPriceUp ? "text-green-400" : "text-red-400"}>
+              {currentPrice.toFixed(2)}
+            </span>
+          </div>
+          <div className="flex items-center justify-end space-x-1">
+            {isPriceUp ? (
+              <ArrowUpCircle className="text-green-400 w-4 h-4" />
+            ) : (
+              <ArrowDownCircle className="text-red-400 w-4 h-4" />
+            )}
+            <span className={`text-xs font-medium ${isPriceUp ? "text-green-400" : "text-red-400"}`}>
+              {changeText}
+            </span>
+          </div>
         </div>
       </div>
       
-      <div className="px-4 pt-2 pb-4 border-t border-gray-800 flex-grow">
-        <h4 className="text-xs font-medium text-gray-400 mb-2">Last 10 Trades</h4>
-        <table className="w-full text-left text-xs">
-          <thead>
-            <tr className="text-gray-500">
-              <th className="pb-1">Time</th>
-              <th className="pb-1 text-right">Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            {priceHistory.length > 0 ? (
-              priceHistory.map((entry, index) => (
-                <tr key={index}>
-                  <td className="py-1 text-gray-400">
-                    {new Date(entry.timestamp).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: false})}
-                  </td>
-                  <td className="py-1 text-right font-mono text-white">{entry.price.toFixed(2)}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={2} className="py-1 text-gray-500 italic">Loading trade history...</td>
+      <div className="flex items-center text-xs text-gray-400 mb-3">
+        <Clock className="w-3 h-3 mr-1" />
+        <span>Last update: {formatTimestamp(timestamp)}</span>
+      </div>
+      
+      <div className="mt-1 border-t border-gray-700 pt-3 flex-grow">
+        <h4 className="text-xs font-medium text-gray-300 mb-2">Last 10 Trades</h4>
+        {priceHistory.length > 0 ? (
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="text-gray-400">
+                <th className="pb-1">Time</th>
+                <th className="pb-1 text-right">Price</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {priceHistory.map((entry, index) => (
+                <tr key={index} className="border-t border-gray-700">
+                  <td className="py-1 text-gray-400">{new Date(entry.timestamp).toLocaleTimeString()}</td>
+                  <td className="py-1 text-right font-mono">{entry.price.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="text-gray-500 italic">No price history available yet</p>
+        )}
       </div>
     </div>
   );
