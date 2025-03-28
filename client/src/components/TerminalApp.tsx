@@ -21,17 +21,19 @@ export default function TerminalApp() {
   const STALE_DATA_THRESHOLD_MS = 30000;  // 30 seconds
 
   return (
-    <>
-      {/* Stale Data Alert */}
-      <StaleDataAlert 
-        lastPriceChangeTime={lastPriceChangeTimestamp}
-        isActive={connectionStatus === "connected" && !isLoading && !isError}
-        staleDurationMs={STALE_DATA_THRESHOLD_MS}
-      />
+    <div className="min-h-screen flex flex-col w-full">
+      {/* Stale Data Alert - Integrated into the application's UI */}
+      <div className="w-full sticky top-0 z-10">
+        <StaleDataAlert 
+          lastPriceChangeTime={lastPriceChangeTimestamp}
+          isActive={connectionStatus === "connected" && !isLoading && !isError}
+          staleDurationMs={STALE_DATA_THRESHOLD_MS}
+        />
+      </div>
       
-      <div className="w-full bg-terminal-bg border border-terminal-border rounded-lg shadow-2xl overflow-hidden flex flex-col font-mono relative transition-all duration-300 hover:shadow-cyan-900/30 hover:shadow-2xl">
+      <div className="w-full flex-grow bg-terminal-bg overflow-hidden flex flex-col font-mono relative transition-all duration-300">
         {/* Gradient overlay at the top */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-purple-500"></div>
+        <div className="w-full h-1 bg-gradient-to-r from-cyan-500 to-purple-500"></div>
         
         <TerminalHeader onRefresh={refresh} />
         <TerminalBody 
@@ -46,6 +48,6 @@ export default function TerminalApp() {
           lastRefreshTime={lastRefreshTime}
         />
       </div>
-    </>
+    </div>
   );
 }

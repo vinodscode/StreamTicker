@@ -78,43 +78,50 @@ export default function StaleDataAlert({
     return () => clearInterval(checkInterval);
   }, [lastPriceChangeTime, isActive, isStale, staleDurationMs, soundEnabled, hasTriggeredSound, forceStaleForTesting]);
 
-  // No alert when there's no data or it's not stale (unless we're forcing for testing)
-  if ((!lastPriceChangeTime || !isStale) && !forceStaleForTesting) return null;
+  // Create an empty element when no alert to preserve layout
+  const isDisplayed = (lastPriceChangeTime && isStale) || forceStaleForTesting;
 
   return (
-    <div className="fixed top-4 right-4 z-50">
-      <div className="bg-red-900 border border-red-700 text-white p-4 rounded-md shadow-lg animate-pulse max-w-md transition-all duration-300 flex items-center gap-3">
-        <AlertTriangle className="text-yellow-300" />
-        <div className="flex-1">
-          <div className="font-bold mb-1 text-yellow-300">Data Feed Alert</div>
-          <p className="text-sm">
-            No stock price changes detected in {(timeSinceUpdate / 1000).toFixed(0)} seconds. 
-            The stock prices have not changed for more than 30 seconds and may be stale.
-          </p>
-          <div className="text-xs text-gray-300 mt-2 flex items-center gap-1">
-            <RefreshCw size={12} className="animate-spin" />
-            <span>
-              Last price change: {lastPriceChangeTime 
-                ? lastPriceChangeTime.toLocaleTimeString() 
-                : "Unknown"}
-            </span>
+    <div className={`w-full transition-all duration-300 ${isDisplayed ? 'opacity-100' : 'opacity-0 h-0'}`}>
+      {isDisplayed && (
+        <div className="bg-gradient-to-r from-red-900 to-red-800 border-b border-red-700 text-white py-3 px-4 shadow-lg transition-all duration-300 flex items-center gap-3 w-full">
+          <div className="animate-pulse">
+            <AlertTriangle className="text-yellow-300 h-8 w-8" />
           </div>
+          <div className="flex-1">
+            <div className="font-bold text-lg text-yellow-300 flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              <span>DATA FEED ALERT</span>
+            </div>
+            <p className="text-sm my-1">
+              <span className="font-mono font-bold">{(timeSinceUpdate / 1000).toFixed(0)}</span> seconds since last price change.
+              The stock prices have not updated for more than 30 seconds and may be stale.
+            </p>
+            <div className="text-xs text-gray-300 mt-1 flex items-center gap-1">
+              <RefreshCw size={12} className="animate-spin" />
+              <span>
+                Last price change: {lastPriceChangeTime 
+                  ? lastPriceChangeTime.toLocaleTimeString() 
+                  : "Unknown"}
+              </span>
+            </div>
+          </div>
+          <button 
+            onClick={() => {
+              // Toggle sound setting
+              setSoundEnabled(!soundEnabled);
+              // Try to unlock audio on click
+              if (!soundEnabled) {
+                unlockAudio().catch(e => console.log('Could not unlock audio:', e));
+              }
+            }} 
+            className="p-2 hover:bg-red-950 rounded-full bg-red-950/50 transition-colors"
+            title={soundEnabled ? "Mute alert sound" : "Enable alert sound"}
+          >
+            {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+          </button>
         </div>
-        <button 
-          onClick={() => {
-            // Toggle sound setting
-            setSoundEnabled(!soundEnabled);
-            // Try to unlock audio on click
-            if (!soundEnabled) {
-              unlockAudio().catch(e => console.log('Could not unlock audio:', e));
-            }
-          }} 
-          className="p-2 hover:bg-red-800 rounded-full"
-          title={soundEnabled ? "Mute alert sound" : "Enable alert sound"}
-        >
-          {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
-        </button>
-      </div>
+      )}
     </div>
   );
 }
