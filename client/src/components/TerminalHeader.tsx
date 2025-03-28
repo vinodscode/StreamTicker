@@ -122,15 +122,6 @@ export default function TerminalHeader({
           <Bell size={18} />
         </button>
         
-        {/* Clear Notifications Button */}
-        <button
-          onClick={onClearNotifications}
-          className="text-monitor-muted hover:text-monitor-negative p-2 rounded-md transition-colors"
-          title="Clear Notifications"
-        >
-          <Trash2 size={18} />
-        </button>
-        
         {/* Refresh Button */}
         <button 
           onClick={handleRefresh} 

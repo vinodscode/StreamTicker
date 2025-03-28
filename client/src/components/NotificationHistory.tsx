@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Bell, XCircle, AlertTriangle, Clock } from 'lucide-react';
+import { Bell, XCircle, AlertTriangle, Clock, Trash2 } from 'lucide-react';
 
 export interface NotificationItem {
   id: string;
@@ -58,12 +58,21 @@ export default function NotificationHistory({ isOpen, onClose }: NotificationHis
             <Bell className="text-terminal-accent mr-2" />
             <h2 className="text-lg font-bold dark:text-terminal-text text-gray-800">Notification History</h2>
           </div>
-          <button 
-            onClick={onClose}
-            className="p-1 hover:bg-opacity-20 hover:bg-terminal-muted rounded-full transition-colors"
-          >
-            <XCircle className="text-terminal-muted hover:text-terminal-negative" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={clearAllNotifications}
+              className="p-2 hover:bg-opacity-20 hover:bg-terminal-muted rounded-md transition-colors"
+              title="Clear Notifications"
+            >
+              <Trash2 className="text-terminal-muted hover:text-terminal-negative" size={18} />
+            </button>
+            <button 
+              onClick={onClose}
+              className="p-1 hover:bg-opacity-20 hover:bg-terminal-muted rounded-full transition-colors"
+            >
+              <XCircle className="text-terminal-muted hover:text-terminal-negative" />
+            </button>
+          </div>
         </div>
         
         <div className="overflow-y-auto max-h-[calc(90vh-4rem)] p-4">
