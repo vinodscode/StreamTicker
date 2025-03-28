@@ -8,46 +8,95 @@
   }
 
   body {
-    @apply font-mono antialiased bg-black text-foreground min-h-screen m-0 p-0 overflow-hidden;
+    @apply font-mono antialiased min-h-screen m-0 p-0;
+  }
+  
+  html {
+    @apply scroll-smooth;
+  }
+  
+  .dark {
+    @apply bg-black text-gray-200;
+  }
+  
+  .light {
+    @apply bg-white text-gray-800;
   }
 }
 
 @layer components {
-  /* Terminal-specific colors */
-  .bg-terminal-bg {
+  /* Terminal-specific colors - Dark theme (default) */
+  .dark .bg-terminal-bg, .bg-terminal-bg {
     @apply bg-gradient-to-b from-gray-950 to-black;
   }
   
-  .bg-terminal-body {
+  .dark .bg-terminal-body, .bg-terminal-body {
     @apply bg-gray-950;
   }
   
-  .bg-terminal-header {
+  .dark .bg-terminal-header, .bg-terminal-header {
     @apply bg-gray-900;
   }
   
-  .border-terminal-border {
+  .dark .border-terminal-border, .border-terminal-border {
     @apply border-gray-700;
   }
   
-  .text-terminal-text {
+  .dark .text-terminal-text, .text-terminal-text {
     @apply text-gray-200;
   }
   
-  .text-terminal-muted {
+  .dark .text-terminal-muted, .text-terminal-muted {
     @apply text-gray-500;
   }
   
-  .text-terminal-accent {
+  .dark .text-terminal-accent, .text-terminal-accent {
     @apply text-cyan-400;
   }
   
-  .text-terminal-positive {
+  .dark .text-terminal-positive, .text-terminal-positive {
     @apply text-green-400;
   }
   
-  .text-terminal-negative {
+  .dark .text-terminal-negative, .text-terminal-negative {
     @apply text-red-400;
+  }
+  
+  /* Terminal-specific colors - Light theme */
+  .light .bg-terminal-bg {
+    @apply bg-gradient-to-b from-gray-100 to-white;
+  }
+  
+  .light .bg-terminal-body {
+    @apply bg-gray-100;
+  }
+  
+  .light .bg-terminal-header {
+    @apply bg-gray-200;
+  }
+  
+  .light .border-terminal-border {
+    @apply border-gray-300;
+  }
+  
+  .light .text-terminal-text {
+    @apply text-gray-800;
+  }
+  
+  .light .text-terminal-muted {
+    @apply text-gray-600;
+  }
+  
+  .light .text-terminal-accent {
+    @apply text-blue-600;
+  }
+  
+  .light .text-terminal-positive {
+    @apply text-green-600;
+  }
+  
+  .light .text-terminal-negative {
+    @apply text-red-600;
   }
   
   /* Animation for blinking cursor */

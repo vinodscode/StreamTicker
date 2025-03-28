@@ -62,6 +62,22 @@ export default function StaleDataAlert({
       if (shouldBeStale && !isStale) {
         setIsStale(true);
         
+        // Add to notification history
+        const message = `No price changes detected in ${(elapsed / 1000).toFixed(0)} seconds. Data may be stale.`;
+        const notification = {
+          id: Date.now().toString(),
+          message,
+          timestamp: new Date(),
+          type: 'stale' as const
+        };
+        
+        // Add to notification history if the global function exists
+        // @ts-ignore
+        if (window.addStockNotification) {
+          // @ts-ignore
+          window.addStockNotification(notification);
+        }
+        
         // Play sound if enabled and not already played for this stale event
         if (soundEnabled && !hasTriggeredSound) {
           // Try to unlock audio first, then play the sound

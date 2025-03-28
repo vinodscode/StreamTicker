@@ -42,8 +42,31 @@ export default function StockCard({
         
         return newHistory;
       });
+      
+      // Check for significant price changes (more than 1%)
+      if (lastEntry) {
+        const percentChange = ((currentPrice - lastEntry.price) / lastEntry.price) * 100;
+        if (Math.abs(percentChange) >= 1) {
+          const direction = percentChange > 0 ? 'increased' : 'decreased';
+          const message = `${symbol} has ${direction} by ${Math.abs(percentChange).toFixed(2)}% (${lastEntry.price.toFixed(2)} → ${currentPrice.toFixed(2)})`;
+          
+          // Add notification if the global function exists
+          // @ts-ignore
+          if (window.addStockNotification) {
+            // @ts-ignore
+            window.addStockNotification({
+              id: Date.now().toString(),
+              message,
+              symbol,
+              exchange,
+              timestamp: new Date(),
+              type: 'info' as const
+            });
+          }
+        }
+      }
     }
-  }, [currentPrice, timestamp, priceHistory]);
+  }, [currentPrice, timestamp, priceHistory, symbol, exchange]);
   
   return (
     <div className="bg-gradient-to-b from-gray-800 to-gray-900 border border-gray-700 rounded-lg overflow-hidden shadow-lg transition-all duration-300 w-full h-full flex flex-col hover:shadow-cyan-900/20 hover:border-gray-600">
