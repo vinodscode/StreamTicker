@@ -40,7 +40,7 @@ export default function TerminalBody({
   };
 
   return (
-    <div className="p-4 overflow-auto h-[450px] terminal-content">
+    <div className="p-4 overflow-auto h-auto min-h-[600px] terminal-content w-full">
       {/* Welcome Message */}
       <div className="mb-4 border-l-2 border-green-500 pl-3 py-1">
         <div className="flex items-center">
