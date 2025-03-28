@@ -23,16 +23,28 @@ export default function NotificationHistory({ isOpen, onClose }: NotificationHis
     setNotifications(prev => [notification, ...prev].slice(0, 50)); // Keep last 50 notifications
   };
 
-  // Expose the addNotification function to the window object
+  // Function to clear all notifications
+  const clearAllNotifications = () => {
+    setNotifications([]);
+  };
+
+  // Expose the addNotification and clearAllNotifications functions to the window object
   useEffect(() => {
     // @ts-ignore
     window.addStockNotification = (notification: NotificationItem) => {
       addNotification(notification);
     };
 
+    // @ts-ignore
+    window.clearAllStockNotifications = () => {
+      clearAllNotifications();
+    };
+
     return () => {
       // @ts-ignore
       delete window.addStockNotification;
+      // @ts-ignore
+      delete window.clearAllStockNotifications;
     };
   }, []);
 

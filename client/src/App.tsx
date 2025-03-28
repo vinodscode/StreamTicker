@@ -6,8 +6,16 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
-import NotificationHistory from "@/components/NotificationHistory";
+import NotificationHistory, { NotificationItem } from "@/components/NotificationHistory";
 import { BellRing, Sun, Moon } from "lucide-react";
+
+// Add global window interface extension
+declare global {
+  interface Window {
+    addStockNotification?: (notification: NotificationItem) => void;
+    clearAllStockNotifications?: () => void;
+  }
+}
 
 function Router() {
   return (
