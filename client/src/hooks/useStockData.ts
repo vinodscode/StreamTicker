@@ -85,7 +85,7 @@ export const useStockData = () => {
       
       Object.entries(stockTimestamps).forEach(([ticker, data]) => {
         // Check the stock's own timestamp instead of global timestamp
-        const stockTime = new Date(data.timestamp).getTime();
+        const stockTime = data.priceTimestamp.getTime();
         const timeDiff = now.getTime() - stockTime;
         if (timeDiff > staleThreshold) {
           newStaleStocks.push(ticker);
