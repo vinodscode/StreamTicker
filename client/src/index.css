@@ -3,10 +3,6 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
   body {
     @apply font-mono antialiased min-h-screen m-0 p-0;
   }
@@ -147,9 +143,30 @@
     @apply opacity-50 cursor-not-allowed;
   }
 }
-}
 
 @layer components {
+  /* Terminal-specific colors - Dark theme (default) */
+  .text-terminal-text {
+    @apply text-gray-200;
+  }
+
+  .text-terminal-accent {
+    @apply text-cyan-500;
+  }
+
+  .text-terminal-cursor {
+    @apply bg-cyan-500;
+  }
+
+  .terminal-cursor {
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
   /* Terminal-specific colors - Dark theme (default) */
   .dark .bg-terminal-bg, .bg-terminal-bg {
     @apply bg-gradient-to-b from-gray-950 to-black;
@@ -167,16 +184,8 @@
     @apply border-gray-700;
   }
   
-  .dark .text-terminal-text, .text-terminal-text {
-    @apply text-gray-200;
-  }
-  
   .dark .text-terminal-muted, .text-terminal-muted {
     @apply text-gray-500;
-  }
-  
-  .dark .text-terminal-accent, .text-terminal-accent {
-    @apply text-cyan-400;
   }
   
   .dark .text-terminal-positive, .text-terminal-positive {
@@ -228,10 +237,6 @@
   @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
-  }
-  
-  .terminal-cursor {
-    animation: blink 1s infinite;
   }
   
   /* Global scrollbar styling */
