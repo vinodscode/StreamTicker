@@ -23,6 +23,11 @@ function parseSSEData(text: string): any | null {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint for monitoring
+  app.get("/health", (_req, res) => {
+    res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
   // API endpoint to fetch stock data
   app.get("/api/stock-data", async (req, res) => {
     try {
