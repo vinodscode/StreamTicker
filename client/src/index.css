@@ -30,8 +30,11 @@
   .light .popover,
   .light .dropdown-menu,
   .light [role="dialog"],
-  .light .skeleton {
-    @apply bg-white border-gray-200;
+  .light .skeleton,
+  .light .modal,
+  .light .sheet,
+  .light .drawer {
+    @apply bg-white border-gray-200 shadow-sm;
   }
 
   .light .loading-skeleton {
@@ -47,8 +50,9 @@
   }
 
   .light input,
-  .light select {
-    @apply bg-white border-gray-300 text-gray-900;
+  .light select,
+  .light textarea {
+    @apply bg-white border-gray-300 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500;
   }
 
   .light table {
@@ -78,6 +82,71 @@
   .light .badge {
     @apply bg-gray-100 text-gray-800;
   }
+
+  .light .tabs-list {
+    @apply bg-gray-100 p-1;
+  }
+
+  .light .tab-trigger {
+    @apply text-gray-600 hover:text-gray-900 data-[state=active]:bg-white data-[state=active]:text-gray-900;
+  }
+
+  .light .collapsible {
+    @apply bg-white border-gray-200;
+  }
+
+  .light .dialog-overlay {
+    @apply bg-black/20;
+  }
+
+  .light .dialog-content {
+    @apply bg-white border-gray-200 shadow-lg;
+  }
+
+  .light .calendar {
+    @apply bg-white border-gray-200;
+  }
+
+  .light .calendar-header {
+    @apply bg-gray-50 text-gray-900;
+  }
+
+  .light .calendar-day {
+    @apply text-gray-900 hover:bg-gray-100;
+  }
+
+  .light .calendar-day-selected {
+    @apply bg-cyan-100 text-cyan-900;
+  }
+
+  .light .accordion {
+    @apply bg-white border-gray-200;
+  }
+
+  .light .accordion-trigger {
+    @apply hover:bg-gray-50;
+  }
+
+  .light .accordion-content {
+    @apply bg-white text-gray-800;
+  }
+
+  .light .menu-item {
+    @apply text-gray-700 hover:bg-gray-100;
+  }
+
+  .light [data-state='active'] {
+    @apply bg-white text-gray-900;
+  }
+
+  .light [data-highlighted] {
+    @apply bg-gray-100;
+  }
+
+  .light [data-disabled] {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}
 }
 
 @layer components {
