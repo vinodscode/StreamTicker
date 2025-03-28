@@ -45,11 +45,6 @@
     @apply bg-gray-100 text-gray-900 hover:bg-gray-200;
   }
 
-  .light button[title="View Notifications"],
-  .light button[title="Clear Notifications"] {
-    @apply bg-gray-100 hover:bg-gray-200;
-  }
-
   .light input,
   .light select,
   .light textarea {
