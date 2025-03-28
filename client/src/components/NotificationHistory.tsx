@@ -52,11 +52,11 @@ export default function NotificationHistory({ isOpen, onClose }: NotificationHis
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center overflow-hidden transition-all duration-300">
-      <div className="relative w-full max-w-3xl max-h-[90vh] dark:bg-terminal-body light:bg-white rounded-lg shadow-2xl border border-terminal-border overflow-hidden">
-        <div className="sticky top-0 dark:bg-terminal-header light:bg-gray-100 border-b border-terminal-border p-4 flex justify-between items-center">
+      <div className="relative w-full max-w-3xl max-h-[90vh] dark:bg-terminal-body bg-white rounded-lg shadow-2xl border border-terminal-border overflow-hidden">
+        <div className="sticky top-0 dark:bg-terminal-header bg-gray-100 border-b border-terminal-border p-4 flex justify-between items-center">
           <div className="flex items-center">
             <Bell className="text-terminal-accent mr-2" />
-            <h2 className="text-lg font-bold dark:text-terminal-text light:text-gray-800">Notification History</h2>
+            <h2 className="text-lg font-bold dark:text-terminal-text text-gray-800">Notification History</h2>
           </div>
           <button 
             onClick={onClose}
@@ -96,22 +96,28 @@ export default function NotificationHistory({ isOpen, onClose }: NotificationHis
                         <Bell className="text-blue-500 mt-1" size={16} />
                       )}
                       <div>
-                        <div className="font-medium dark:text-terminal-text light:text-gray-800">
+                        <div className="font-medium dark:text-terminal-text text-gray-800">
                           {notification.symbol ? (
                             <span className="font-mono">{notification.symbol}</span>
                           ) : "System Alert"}
                           {notification.exchange && (
-                            <span className="text-xs ml-2 dark:bg-gray-800 light:bg-gray-200 px-2 py-0.5 rounded-md">
+                            <span className="text-xs ml-2 dark:bg-gray-800 bg-gray-200 px-2 py-0.5 rounded-md">
                               {notification.exchange}
                             </span>
                           )}
                         </div>
-                        <p className="text-sm dark:text-terminal-text light:text-gray-600 mt-1">{notification.message}</p>
+                        <p className="text-sm dark:text-terminal-text text-gray-600 mt-1">{notification.message}</p>
                       </div>
                     </div>
                     <div className="text-xs text-terminal-muted flex items-center">
                       <Clock size={12} className="mr-1" />
-                      {notification.timestamp.toLocaleTimeString()}
+                      {notification.timestamp.toLocaleTimeString('en-IN', {
+                        hour: "2-digit" as const,
+                        minute: "2-digit" as const,
+                        second: "2-digit" as const,
+                        hour12: true,
+                        timeZone: 'Asia/Kolkata'
+                      })}
                     </div>
                   </div>
                 </div>

@@ -6,26 +6,30 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatTimestamp(timestamp: string): string {
+  // Convert to IST (UTC+5:30)
   const date = new Date(timestamp);
-  return date.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit', 
-    second: '2-digit',
-    hour12: false 
+  return date.toLocaleTimeString('en-IN', { 
+    hour: "2-digit" as const, 
+    minute: "2-digit" as const, 
+    second: "2-digit" as const,
+    hour12: true,
+    timeZone: 'Asia/Kolkata'
   });
 }
 
 export function formatDateTime(timestamp: string): string {
+  // Convert to IST (UTC+5:30)
   const date = new Date(timestamp);
-  return date.toLocaleString('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  }).replace(',', '');
+  return date.toLocaleString('en-IN', {
+    year: "numeric" as const,
+    month: "2-digit" as const,
+    day: "2-digit" as const,
+    hour: "2-digit" as const,
+    minute: "2-digit" as const,
+    second: "2-digit" as const,
+    hour12: true,
+    timeZone: 'Asia/Kolkata'
+  });
 }
 
 export function calculateChange(currentPrice: number, previousPrice: number): string {

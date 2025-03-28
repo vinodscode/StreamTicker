@@ -49,9 +49,9 @@ export default function TerminalHeader({
       </div>
       
       <div className="flex items-center gap-3">
-        <button 
+        <div 
           onClick={() => setShowInfo(!showInfo)}
-          className="dark:hover:bg-gray-800 light:hover:bg-gray-300 p-2 rounded-md relative transition-colors focus:outline-none"
+          className="dark:hover:bg-gray-800 light:bg-gray-200 light:hover:bg-gray-300 p-2 rounded-md relative transition-colors focus:outline-none cursor-pointer"
           title="Information"
         >
           <Info size={18} className="text-terminal-muted hover:text-terminal-accent transition-colors" />
@@ -86,12 +86,12 @@ export default function TerminalHeader({
               </div>
             </div>
           )}
-        </button>
+        </div>
         
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
-          className="dark:hover:bg-gray-800 light:hover:bg-gray-300 p-2 rounded-md transition-colors focus:outline-none"
+          className="dark:hover:bg-gray-800 light:bg-gray-200 light:hover:bg-gray-300 p-2 rounded-md transition-colors focus:outline-none"
           title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
         >
           {isDark ? (
@@ -104,7 +104,7 @@ export default function TerminalHeader({
         {/* Notification History Button */}
         <button
           onClick={onViewNotifications}
-          className="dark:hover:bg-gray-800 light:hover:bg-gray-300 p-2 rounded-md transition-colors focus:outline-none"
+          className="dark:hover:bg-gray-800 light:bg-gray-200 light:hover:bg-gray-300 p-2 rounded-md transition-colors focus:outline-none"
           title="View Notifications"
         >
           <Bell size={18} className="text-terminal-muted hover:text-yellow-400 transition-colors" />
@@ -113,7 +113,7 @@ export default function TerminalHeader({
         {/* Clear Notifications Button */}
         <button
           onClick={onClearNotifications}
-          className="dark:hover:bg-gray-800 light:hover:bg-gray-300 p-2 rounded-md transition-colors focus:outline-none"
+          className="dark:hover:bg-gray-800 light:bg-gray-200 light:hover:bg-gray-300 p-2 rounded-md transition-colors focus:outline-none"
           title="Clear Notifications"
         >
           <Trash2 size={18} className="text-terminal-muted hover:text-terminal-negative transition-colors" />
