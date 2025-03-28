@@ -69,28 +69,28 @@ export default function StockCard({
   }, [currentPrice, timestamp, priceHistory, symbol, exchange]);
   
   return (
-    <div className="bg-gradient-to-b from-gray-800 to-gray-900 border border-gray-700 rounded-lg overflow-hidden shadow-lg transition-all duration-300 w-full h-full flex flex-col hover:shadow-cyan-900/20 hover:border-gray-600">
+    <div className="stock-card dark:bg-gradient-to-b dark:from-gray-800 dark:to-gray-900 light:bg-white w-full h-full flex flex-col">
       {/* Card Header */}
-      <div className="bg-terminal-header/70 px-4 py-3 border-b border-terminal-border flex justify-between items-center">
+      <div className="dark:bg-terminal-header/70 light:bg-gray-100 px-4 py-3 border-b border-terminal-border flex justify-between items-center">
         <div>
-          <h3 className="text-xl font-bold text-white font-mono">{symbol}</h3>
-          <div className="flex items-center text-xs text-gray-400">
-            <span className="bg-gray-700 px-2 py-0.5 rounded text-terminal-accent">{exchange}</span>
+          <h3 className="text-xl font-bold dark:text-white light:text-gray-800 font-mono">{symbol}</h3>
+          <div className="flex items-center text-xs dark:text-gray-400 light:text-gray-500">
+            <span className="dark:bg-gray-700 light:bg-gray-200 px-2 py-0.5 rounded text-terminal-accent">{exchange}</span>
           </div>
         </div>
         <div className="text-right">
           <div className="text-2xl font-mono font-bold">
-            <span className={isPriceUp ? "text-green-400" : "text-red-400"}>
+            <span className={isPriceUp ? "text-green-500 dark:text-green-400" : "text-red-500 dark:text-red-400"}>
               {currentPrice.toFixed(2)}
             </span>
           </div>
           <div className="flex items-center justify-end space-x-1">
             {isPriceUp ? (
-              <ArrowUpCircle className="text-green-400 w-5 h-5" />
+              <ArrowUpCircle className="text-green-500 dark:text-green-400 w-5 h-5" />
             ) : (
-              <ArrowDownCircle className="text-red-400 w-5 h-5" />
+              <ArrowDownCircle className="text-red-500 dark:text-red-400 w-5 h-5" />
             )}
-            <span className={`text-sm font-bold ${isPriceUp ? "text-green-400" : "text-red-400"}`}>
+            <span className={`text-sm font-bold ${isPriceUp ? "text-green-500 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>
               {isPriceUp ? "+" : ""}{changeText}
             </span>
           </div>
@@ -98,7 +98,7 @@ export default function StockCard({
       </div>
       
       {/* Last Update Info */}
-      <div className="px-4 py-2 bg-gray-900/50 flex items-center text-xs text-gray-400">
+      <div className="px-4 py-2 dark:bg-gray-900/50 light:bg-gray-50 flex items-center text-xs dark:text-gray-400 light:text-gray-500">
         <Clock className="w-3 h-3 mr-1" />
         <span>Last update: {formatTimestamp(timestamp)}</span>
       </div>
@@ -106,13 +106,13 @@ export default function StockCard({
       {/* Price History Section */}
       <div className="p-4 flex-grow overflow-hidden">
         <div className="flex items-center justify-between mb-2">
-          <h4 className="text-sm font-medium text-gray-300">Price History</h4>
+          <h4 className="text-sm font-medium dark:text-gray-300 light:text-gray-700">Price History</h4>
           <span className="text-xs text-terminal-muted">Last 10 Trades</span>
         </div>
-        <div className="h-[280px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
+        <div className="h-[280px] overflow-y-auto dark:scrollbar-thin dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-900">
           {priceHistory.length > 0 ? (
             <table className="w-full text-left text-xs">
-              <thead className="sticky top-0 bg-gray-900/80 backdrop-blur-sm">
+              <thead className="sticky top-0 dark:bg-gray-900/80 light:bg-gray-100 backdrop-blur-sm">
                 <tr className="text-terminal-accent">
                   <th className="px-2 py-1 font-medium">#</th>
                   <th className="px-2 py-1 font-medium">Time</th>
@@ -124,15 +124,17 @@ export default function StockCard({
                   // Calculate price difference with previous entry
                   const prevEntry = priceHistory[index + 1];
                   const priceDiff = prevEntry ? entry.price - prevEntry.price : 0;
-                  const priceChangeClass = priceDiff >= 0 ? "text-green-400" : "text-red-400";
+                  const priceChangeClass = priceDiff >= 0 
+                    ? "text-green-500 dark:text-green-400" 
+                    : "text-red-500 dark:text-red-400";
                   
                   return (
                     <tr 
                       key={index} 
-                      className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
+                      className="border-b dark:border-gray-800/50 light:border-gray-200 dark:hover:bg-gray-800/30 light:hover:bg-gray-50 transition-colors"
                     >
-                      <td className="px-2 py-1.5 text-gray-500">{index + 1}</td>
-                      <td className="px-2 py-1.5 text-gray-300">{new Date(entry.timestamp).toLocaleTimeString()}</td>
+                      <td className="px-2 py-1.5 dark:text-gray-500 light:text-gray-400">{index + 1}</td>
+                      <td className="px-2 py-1.5 dark:text-gray-300 light:text-gray-600">{new Date(entry.timestamp).toLocaleTimeString()}</td>
                       <td className={`px-2 py-1.5 text-right font-mono font-medium ${priceChangeClass}`}>
                         {entry.price.toFixed(2)}
                       </td>
@@ -143,7 +145,7 @@ export default function StockCard({
             </table>
           ) : (
             <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500 italic">No price history available yet</p>
+              <p className="dark:text-gray-500 light:text-gray-400 italic">No price history available yet</p>
             </div>
           )}
         </div>

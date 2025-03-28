@@ -22,9 +22,9 @@ export default function TerminalFooter({
     : AlertTriangle;
 
   return (
-    <div className="px-6 py-4 bg-gradient-to-r from-gray-900 to-terminal-header/90 border-t border-terminal-border flex justify-between items-center text-sm text-terminal-muted">
+    <div className="px-6 py-4 dark:bg-gradient-to-r dark:from-gray-900 dark:to-terminal-header/90 light:bg-gradient-to-r light:from-gray-100 light:to-gray-200 border-t border-terminal-border flex justify-between items-center text-sm text-terminal-muted">
       <div className="flex items-center gap-6">
-        <div className="flex items-center bg-terminal-header/50 px-3 py-1.5 rounded-full border border-terminal-border/50">
+        <div className="flex items-center dark:bg-terminal-header/50 light:bg-white/80 px-3 py-1.5 rounded-full border border-terminal-border/50">
           <Terminal size={14} className="text-terminal-accent mr-2" />
           <span className="font-medium">StockTerminal v1.0</span>
         </div>
@@ -36,7 +36,7 @@ export default function TerminalFooter({
       </div>
       
       <div className="flex items-center gap-6">
-        <div className="flex items-center bg-gray-900/60 px-3 py-1.5 rounded-full border border-terminal-border/30">
+        <div className="flex items-center dark:bg-gray-900/60 light:bg-white/80 px-3 py-1.5 rounded-full border border-terminal-border/30">
           <div className="flex mr-2">
             <div className={`${connectionStatus === "connected" ? "bg-green-500" : "bg-red-500"} w-2 h-2 rounded-full relative`}>
               {connectionStatus === "connected" && (
@@ -49,10 +49,10 @@ export default function TerminalFooter({
           <span className={`${statusClassname} font-semibold ml-1`}>{statusText}</span>
         </div>
         
-        <div className="flex items-center bg-gray-900/60 px-3 py-1.5 rounded-full border border-terminal-border/30">
+        <div className="flex items-center dark:bg-gray-900/60 light:bg-white/80 px-3 py-1.5 rounded-full border border-terminal-border/30">
           <Clock size={14} className="mr-2 text-terminal-accent" />
           <span>Updated: </span>
-          <span className="text-terminal-text ml-1 font-mono">{lastRefreshTime}</span>
+          <span className="dark:text-terminal-text light:text-gray-700 ml-1 font-mono">{lastRefreshTime}</span>
         </div>
         
         <div className="flex items-center">
