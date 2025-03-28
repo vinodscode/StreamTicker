@@ -111,14 +111,14 @@ export default function TerminalBody({
           </div>
           
           {/* Data Cards Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 mb-4 w-full">
             {Object.entries(data.data).map(([ticker, tickerData]) => {
               const lastPrice = tickerData.last_price;
               const prevPrice = previousPrices[ticker] || lastPrice;
               const exchange = EXCHANGE_MAP[ticker] || "Unknown";
               
               return (
-                <div className="h-[350px]" key={ticker}>
+                <div className="h-[400px]" key={ticker}>
                   <StockCard 
                     symbol={ticker}
                     exchange={exchange}
