@@ -23,8 +23,8 @@ export const useStockData = () => {
   
   // Track per-stock update timestamps
   const [stockTimestamps, setStockTimestamps] = useState<StockTimestamps>({});
-  // Track which stocks are currently stale
-  const [staleStocks, setStaleStocks] = useState<string[]>([]);
+  // Track which stocks are currently stale with exchange info
+  const [staleStocks, setStaleStocks] = useState<Array<{ticker: string, exchange: string}>>([]);
   
   const socketRef = useRef<WebSocket | null>(null);
   const pricesHistoryRef = useRef<Record<string, number>>({});
@@ -81,24 +81,44 @@ export const useStockData = () => {
     const checkStaleness = () => {
       const now = new Date();
       const staleThreshold = 30000; // 30 seconds
-      const newStaleStocks: string[] = [];
+      const newStaleStocks: Array<{ticker: string, exchange: string}> = [];
       
       Object.entries(stockTimestamps).forEach(([ticker, data]) => {
         // Check the stock's own timestamp instead of global timestamp
         const stockTime = data.priceTimestamp.getTime();
         const timeDiff = now.getTime() - stockTime;
+        
+        // Extract exchange from ticker if available
+        let exchange = 'NSE'; // Default
+        
+        // Try to determine exchange based on ticker patterns
+        if (ticker.includes('FUT')) {
+          if (ticker.includes('NIFTY')) {
+            exchange = 'NFO';
+          } else if (ticker.includes('SENSEX')) {
+            exchange = 'BSE';
+          } else if (ticker.includes('USDINR')) {
+            exchange = 'CDS';
+          } else if (ticker.includes('CRUDEOIL')) {
+            exchange = 'MCX';
+          }
+        } else if (ticker.includes('RELIANCE') || ticker.includes('INFY')) {
+          exchange = 'NSE';
+        }
+        
         if (timeDiff > staleThreshold) {
-          newStaleStocks.push(ticker);
+          newStaleStocks.push({ ticker, exchange });
         }
       });
       
       // If we found new stale stocks, update the state and notify
-      if (newStaleStocks.length > 0 && JSON.stringify(newStaleStocks) !== JSON.stringify(staleStocks)) {
+      if (newStaleStocks.length > 0 && 
+          JSON.stringify(newStaleStocks.map(s => s.ticker)) !== JSON.stringify(staleStocks.map(s => s.ticker))) {
         setStaleStocks(newStaleStocks);
         
         // Create a notification for the stale data
         if (newStaleStocks.length > 0) {
-          const staleStocksList = newStaleStocks.join(', ');
+          const staleStocksList = newStaleStocks.map(s => s.ticker).join(', ');
           const notification = {
             id: Date.now().toString(),
             message: `No price changes for over 30 seconds in stocks: ${staleStocksList}`,

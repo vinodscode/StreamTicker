@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { 
   ArrowUp, ArrowDown, Clock, AlertTriangle, 
-  BarChart4, Building, Activity, AlertCircle, ExternalLink 
+  BarChart4, Building, Activity, AlertCircle, ExternalLink,
+  Power, PowerOff
 } from "lucide-react";
 import { formatTimestamp, calculateChange } from "@/lib/utils";
+import { getMarketStatus, isWithinMarketHours } from "@/lib/marketHours";
 
 interface PriceHistory {
   price: number;
@@ -28,6 +30,10 @@ export default function StockCard({
   isStale = false
 }: StockCardProps) {
   const [priceHistory, setPriceHistory] = useState<PriceHistory[]>([]);
+  
+  // Get market status for this exchange
+  const marketStatus = getMarketStatus(exchange);
+  const isMarketOpen = marketStatus.isOpen;
   
   const change = currentPrice - previousPrice;
   const isPriceUp = change >= 0;
@@ -73,12 +79,15 @@ export default function StockCard({
     }
   }, [currentPrice, timestamp, priceHistory, symbol, exchange]);
   
+  // Function to determine if we should consider this stock as stale
+  const effectiveStaleStatus = isStale && isMarketOpen;
+  
   return (
-    <div className={`stock-card ${isStale ? 'stale-card' : ''}`}>
+    <div className={`stock-card ${effectiveStaleStatus ? 'stale-card' : ''}`}>
       {/* Card Header */}
       <div className="card-header">
         <div className="flex items-center gap-1.5">
-          {isStale ? (
+          {effectiveStaleStatus ? (
             <AlertTriangle size={16} className="text-monitor-warning" />
           ) : (
             <Activity size={16} className="text-monitor-accent" />
@@ -87,7 +96,23 @@ export default function StockCard({
             {symbol}
           </h3>
         </div>
-        <div>
+        <div className="flex items-center gap-2">
+          {/* Market Status Badge */}
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium 
+            bg-opacity-20 border border-opacity-20
+            ${isMarketOpen ? 'bg-green-500 border-green-500 text-green-600 dark:text-green-400' : 
+              'bg-gray-500 border-gray-500 text-gray-600 dark:text-gray-400'}">
+            {isMarketOpen ? (
+              <Power size={10} className="dark:text-green-400 text-green-600" />
+            ) : (
+              <PowerOff size={10} className="dark:text-gray-400 text-gray-600" />
+            )}
+            <span>
+              {isMarketOpen ? 'Open' : 'Closed'}
+            </span>
+          </div>
+          
+          {/* Exchange Badge */}
           <div className="flex items-center gap-1.5">
             <Building size={13} className="text-monitor-muted" />
             <span className="badge badge-success">
@@ -103,7 +128,7 @@ export default function StockCard({
           <div className="flex flex-col items-start">
             <span className="text-monitor-muted text-xs mb-1">Current Price</span>
             <span className={`text-3xl font-bold tabular-nums ${
-              isStale 
+              effectiveStaleStatus 
                 ? "text-monitor-muted" 
                 : isPriceUp 
                   ? "text-monitor-positive" 
@@ -116,13 +141,13 @@ export default function StockCard({
           <div className="flex flex-col items-end">
             <span className="text-monitor-muted text-xs mb-1">Change</span>
             <div className={`flex items-center text-lg font-bold ${
-              isStale 
+              effectiveStaleStatus 
                 ? "text-monitor-muted" 
                 : isPriceUp 
                   ? "text-monitor-positive" 
                   : "text-monitor-negative"
             }`}>
-              {!isStale && (isPriceUp ? (
+              {!effectiveStaleStatus && (isPriceUp ? (
                 <ArrowUp className="mr-1" size={18} />
               ) : (
                 <ArrowDown className="mr-1" size={18} />
@@ -135,7 +160,7 @@ export default function StockCard({
       
       {/* Last Update Info */}
       <div className={`px-4 py-2 border-b border-monitor flex items-center justify-between ${
-        isStale ? "bg-rose-900/10 dark:text-monitor-negative light:text-rose-600" : ""
+        effectiveStaleStatus ? "bg-rose-900/10 dark:text-monitor-negative light:text-rose-600" : ""
       }`}>
         <div className="flex items-center gap-1.5">
           <Clock size={14} />
@@ -143,7 +168,10 @@ export default function StockCard({
             Last update: {formatTimestamp(timestamp)}
           </span>
         </div>
-        {isStale && (
+        {!isMarketOpen && (
+          <span className="badge badge-secondary">{marketStatus.message}</span>
+        )}
+        {isMarketOpen && effectiveStaleStatus && (
           <span className="badge badge-danger">Stale</span>
         )}
       </div>
@@ -232,9 +260,15 @@ export default function StockCard({
       {/* Card Footer */}
       <div className="card-footer flex items-center justify-between text-xs">
         <div className="flex items-center">
-          <span className={`status-indicator ${isStale ? 'status-stale stale-pulse' : 'status-active active-pulse'}`}></span>
+          <span className={`status-indicator ${effectiveStaleStatus ? 'status-stale stale-pulse' : 'status-active active-pulse'}`}></span>
           <span className="text-monitor-muted">
-            {isStale ? 'Data feed stale' : 'Data feed active'}
+            {!isMarketOpen ? (
+              <>Market hours: {marketStatus.nextOpeningTime}</>
+            ) : effectiveStaleStatus ? (
+              'Data feed stale'
+            ) : (
+              'Data feed active'
+            )}
           </span>
         </div>
         <a href="#" className="text-monitor-accent flex items-center opacity-75 hover:opacity-100 transition-opacity">

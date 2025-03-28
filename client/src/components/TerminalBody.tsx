@@ -20,7 +20,7 @@ interface TerminalBodyProps {
   isError: boolean;
   previousPrices: Record<string, number>;
   refresh: () => void;
-  staleStocks?: string[];
+  staleStocks?: Array<{ticker: string, exchange: string}>;
 }
 
 // Map to store exchange names for each stock symbol
@@ -141,7 +141,7 @@ export default function TerminalBody({
                     currentPrice={lastPrice}
                     previousPrice={prevPrice}
                     timestamp={tickerData.timestamp}
-                    isStale={staleStocks.includes(ticker)}
+                    isStale={staleStocks.some(stock => stock.ticker === ticker)}
                   />
                 );
               })}
@@ -184,7 +184,7 @@ export default function TerminalBody({
                         : 'text-monitor-negative';
                       const changePrefix = isPositive ? '+' : '';
                       const exchange = EXCHANGE_MAP[ticker] || "Unknown";
-                      const isStale = staleStocks.includes(ticker);
+                      const isStale = staleStocks.some(stock => stock.ticker === ticker);
                       
                       return (
                         <tr 
