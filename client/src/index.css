@@ -10,16 +10,16 @@
   body {
     @apply font-mono antialiased min-h-screen m-0 p-0;
   }
-  
+
   html {
     @apply scroll-smooth;
   }
-  
+
   .dark {
     @apply bg-black text-gray-200;
     color-scheme: dark;
   }
-  
+
   .light {
     @apply bg-white text-gray-800;
     color-scheme: light;
@@ -28,8 +28,14 @@
   .light .card,
   .light .dialog,
   .light .popover,
-  .light .dropdown-menu {
+  .light .dropdown-menu,
+  .light [role="dialog"],
+  .light .skeleton {
     @apply bg-white border-gray-200;
+  }
+
+  .light .loading-skeleton {
+    @apply bg-gray-100;
   }
 
   .light .button-primary {
@@ -38,6 +44,39 @@
 
   .light .button-secondary {
     @apply bg-gray-100 text-gray-900 hover:bg-gray-200;
+  }
+
+  .light input,
+  .light select {
+    @apply bg-white border-gray-300 text-gray-900;
+  }
+
+  .light table {
+    @apply bg-white border-gray-200;
+  }
+
+  .light th {
+    @apply bg-gray-50 text-gray-700;
+  }
+
+  .light td {
+    @apply text-gray-800 border-gray-200;
+  }
+
+  .light .placeholder {
+    @apply bg-gray-50;
+  }
+
+  .light .tooltip {
+    @apply bg-gray-700 text-white;
+  }
+
+  .light .alert {
+    @apply bg-gray-50 border-gray-200 text-gray-800;
+  }
+
+  .light .badge {
+    @apply bg-gray-100 text-gray-800;
   }
 }
 
