@@ -3,15 +3,15 @@ import { Bell, AlertTriangle, VolumeX, Volume2, RefreshCw } from "lucide-react";
 import { playAlertSound, unlockAudio } from "@/lib/audio";
 
 interface StaleDataAlertProps {
-  lastUpdateTimestamp: string | null;
+  lastPriceChangeTime: Date | null;
   isActive: boolean;
   staleDurationMs: number;
 }
 
 export default function StaleDataAlert({ 
-  lastUpdateTimestamp, 
+  lastPriceChangeTime, 
   isActive,
-  staleDurationMs = 20000 // Default to 20 seconds
+  staleDurationMs = 30000 // Default to 30 seconds
 }: StaleDataAlertProps) {
   const [isStale, setIsStale] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -32,12 +32,12 @@ export default function StaleDataAlert({
   }, []);
 
   useEffect(() => {
-    // Reset stale status when we get a new update
-    if (lastUpdateTimestamp && isActive && !forceStaleForTesting) {
+    // Reset stale status when we get a new price change
+    if (lastPriceChangeTime && isActive && !forceStaleForTesting) {
       setIsStale(false);
       setHasTriggeredSound(false);
     }
-  }, [lastUpdateTimestamp, isActive, forceStaleForTesting]);
+  }, [lastPriceChangeTime, isActive, forceStaleForTesting]);
 
   // Check data staleness periodically
   useEffect(() => {
@@ -45,10 +45,10 @@ export default function StaleDataAlert({
     if (!isActive && !forceStaleForTesting) return;
     
     const checkInterval = setInterval(() => {
-      if (!lastUpdateTimestamp && !forceStaleForTesting) return;
+      if (!lastPriceChangeTime && !forceStaleForTesting) return;
       
-      const lastUpdate = lastUpdateTimestamp 
-        ? new Date(lastUpdateTimestamp).getTime() 
+      const lastUpdate = lastPriceChangeTime 
+        ? lastPriceChangeTime.getTime() 
         : Date.now() - staleDurationMs - 1000; // For testing
       
       const now = Date.now();
@@ -56,7 +56,7 @@ export default function StaleDataAlert({
       
       setTimeSinceUpdate(elapsed);
       
-      // Determine if data is stale
+      // Determine if data is stale (no price changes for 30 seconds)
       const shouldBeStale = elapsed > staleDurationMs || forceStaleForTesting;
       
       if (shouldBeStale && !isStale) {
@@ -76,10 +76,10 @@ export default function StaleDataAlert({
     }, 1000); // Check every second
     
     return () => clearInterval(checkInterval);
-  }, [lastUpdateTimestamp, isActive, isStale, staleDurationMs, soundEnabled, hasTriggeredSound, forceStaleForTesting]);
+  }, [lastPriceChangeTime, isActive, isStale, staleDurationMs, soundEnabled, hasTriggeredSound, forceStaleForTesting]);
 
   // No alert when there's no data or it's not stale (unless we're forcing for testing)
-  if ((!lastUpdateTimestamp || !isStale) && !forceStaleForTesting) return null;
+  if ((!lastPriceChangeTime || !isStale) && !forceStaleForTesting) return null;
 
   return (
     <div className="fixed top-4 right-4 z-50">
@@ -88,14 +88,14 @@ export default function StaleDataAlert({
         <div className="flex-1">
           <div className="font-bold mb-1 text-yellow-300">Data Feed Alert</div>
           <p className="text-sm">
-            No unique updates received in over {(timeSinceUpdate / 1000).toFixed(0)} seconds. 
-            The stock data has not changed for more than 30 seconds and may be stale.
+            No stock price changes detected in {(timeSinceUpdate / 1000).toFixed(0)} seconds. 
+            The stock prices have not changed for more than 30 seconds and may be stale.
           </p>
           <div className="text-xs text-gray-300 mt-2 flex items-center gap-1">
             <RefreshCw size={12} className="animate-spin" />
             <span>
-              Last update: {lastUpdateTimestamp 
-                ? new Date(lastUpdateTimestamp).toLocaleTimeString() 
+              Last price change: {lastPriceChangeTime 
+                ? lastPriceChangeTime.toLocaleTimeString() 
                 : "Unknown"}
             </span>
           </div>

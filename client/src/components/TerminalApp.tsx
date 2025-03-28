@@ -12,7 +12,7 @@ export default function TerminalApp() {
     refresh, 
     lastRefreshTime, 
     lastDataTimestamp,
-    lastUniqueTimestamp,
+    lastPriceChangeTimestamp,
     connectionStatus, 
     previousPrices
   } = useStockData();
@@ -24,7 +24,7 @@ export default function TerminalApp() {
     <>
       {/* Stale Data Alert */}
       <StaleDataAlert 
-        lastUpdateTimestamp={lastUniqueTimestamp}
+        lastPriceChangeTime={lastPriceChangeTimestamp}
         isActive={connectionStatus === "connected" && !isLoading && !isError}
         staleDurationMs={STALE_DATA_THRESHOLD_MS}
       />

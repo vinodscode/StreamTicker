@@ -8,12 +8,12 @@ export const useStockData = () => {
   const [lastRefreshTime, setLastRefreshTime] = useState<string>("never");
   const [refreshTimestamp, setRefreshTimestamp] = useState<Date | null>(null);
   const [lastDataTimestamp, setLastDataTimestamp] = useState<string | null>(null);
-  const [lastUniqueTimestamp, setLastUniqueTimestamp] = useState<string | null>(null);
+  const [lastPriceChangeTimestamp, setLastPriceChangeTimestamp] = useState<Date | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<"connected" | "disconnected">("disconnected");
   const [stockData, setStockData] = useState<StockDataResponse | null>(null);
   
   const socketRef = useRef<WebSocket | null>(null);
-  const previousDataRef = useRef<string | null>(null);
+  const pricesHistoryRef = useRef<Record<string, number>>({});
 
   const { 
     data: initialData, 
@@ -25,6 +25,30 @@ export const useStockData = () => {
     refetchInterval: false,
     refetchOnWindowFocus: false,
   });
+
+  // Check if any stock price has changed
+  const hasPriceChanged = useCallback((newData: StockDataResponse): boolean => {
+    if (!pricesHistoryRef.current || Object.keys(pricesHistoryRef.current).length === 0) {
+      return true; // First data load, treat as changed
+    }
+    
+    let changed = false;
+    
+    // Check each stock for price changes
+    Object.entries(newData.data).forEach(([ticker, tickerData]) => {
+      const newPrice = tickerData.last_price;
+      const oldPrice = pricesHistoryRef.current[ticker];
+      
+      // If price has changed or we don't have previous data
+      if (oldPrice === undefined || newPrice !== oldPrice) {
+        changed = true;
+        // Update price history
+        pricesHistoryRef.current[ticker] = newPrice;
+      }
+    });
+    
+    return changed;
+  }, []);
 
   // Connect to WebSocket
   useEffect(() => {
@@ -49,12 +73,13 @@ export const useStockData = () => {
         // Always update the received timestamp
         setLastDataTimestamp(data.timestamp);
         
-        // Check if this is actually new data or the same data repeating
-        const dataString = JSON.stringify(data);
-        if (dataString !== previousDataRef.current) {
-          // This is unique data, update our unique timestamp
-          setLastUniqueTimestamp(data.timestamp);
-          previousDataRef.current = dataString;
+        // Check if any price has changed
+        const priceChanged = hasPriceChanged(data);
+        
+        // Update last price change timestamp if prices changed
+        if (priceChanged) {
+          console.log("Price change detected, updating timestamp");
+          setLastPriceChangeTimestamp(new Date());
         }
         
         setStockData(data);
@@ -77,7 +102,7 @@ export const useStockData = () => {
     return () => {
       socket.close();
     };
-  }, []);
+  }, [hasPriceChanged]);
 
   // Set initial data if available
   useEffect(() => {
@@ -85,8 +110,12 @@ export const useStockData = () => {
       const typedInitialData = initialData as StockDataResponse;
       setStockData(typedInitialData);
       setLastDataTimestamp(typedInitialData.timestamp);
-      setLastUniqueTimestamp(typedInitialData.timestamp);
-      previousDataRef.current = JSON.stringify(typedInitialData);
+      setLastPriceChangeTimestamp(new Date());
+      
+      // Initialize price history
+      Object.entries(typedInitialData.data).forEach(([ticker, tickerData]) => {
+        pricesHistoryRef.current[ticker] = tickerData.last_price;
+      });
     }
   }, [initialData, stockData]);
 
@@ -128,7 +157,7 @@ export const useStockData = () => {
     refresh,
     lastRefreshTime,
     lastDataTimestamp,
-    lastUniqueTimestamp,
+    lastPriceChangeTimestamp,
     connectionStatus,
     previousPrices
   };
