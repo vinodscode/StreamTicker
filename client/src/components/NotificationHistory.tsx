@@ -48,7 +48,7 @@ export default function NotificationHistory({ isOpen, onClose }: NotificationHis
           </div>
           <button 
             onClick={onClose}
-            className="p-1 hover:bg-gray-800 rounded-full transition-colors"
+            className="p-1 hover:bg-opacity-20 hover:bg-terminal-muted rounded-full transition-colors"
           >
             <XCircle className="text-terminal-muted hover:text-terminal-negative" />
           </button>
@@ -68,20 +68,20 @@ export default function NotificationHistory({ isOpen, onClose }: NotificationHis
                   key={notification.id} 
                   className={`border-l-4 ${
                     notification.type === 'stale' 
-                      ? 'border-yellow-500 bg-yellow-900/20' 
+                      ? 'dark:border-yellow-500 dark:bg-yellow-900/20 border-yellow-500 bg-yellow-100/80' 
                       : notification.type === 'error'
-                        ? 'border-red-500 bg-red-900/20'
-                        : 'border-blue-500 bg-blue-900/20'
+                        ? 'dark:border-red-500 dark:bg-red-900/20 border-red-500 bg-red-100/80'
+                        : 'dark:border-blue-500 dark:bg-blue-900/20 border-blue-500 bg-blue-100/80'
                   } p-3 rounded-r-md`}
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex items-start gap-2">
                       {notification.type === 'stale' ? (
-                        <AlertTriangle className="text-yellow-500 mt-1" size={16} />
+                        <AlertTriangle className="text-yellow-500 dark:text-yellow-500 mt-1" size={16} />
                       ) : notification.type === 'error' ? (
-                        <AlertTriangle className="text-red-500 mt-1" size={16} />
+                        <AlertTriangle className="text-red-500 dark:text-red-500 mt-1" size={16} />
                       ) : (
-                        <Bell className="text-blue-500 mt-1" size={16} />
+                        <Bell className="text-blue-500 dark:text-blue-500 mt-1" size={16} />
                       )}
                       <div>
                         <div className="font-medium text-terminal-text">
@@ -89,7 +89,7 @@ export default function NotificationHistory({ isOpen, onClose }: NotificationHis
                             <span className="font-mono">{notification.symbol}</span>
                           ) : "System Alert"}
                           {notification.exchange && (
-                            <span className="text-xs ml-2 bg-gray-800 px-2 py-0.5 rounded-md">
+                            <span className="text-xs ml-2 dark:bg-gray-800 bg-gray-200 px-2 py-0.5 rounded-md">
                               {notification.exchange}
                             </span>
                           )}

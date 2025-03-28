@@ -115,21 +115,39 @@
     height: 8px;
   }
   
-  ::-webkit-scrollbar-track {
+  /* Dark theme scrollbars */
+  .dark ::-webkit-scrollbar-track, ::-webkit-scrollbar-track {
     @apply bg-gray-900;
   }
   
-  ::-webkit-scrollbar-thumb {
+  .dark ::-webkit-scrollbar-thumb, ::-webkit-scrollbar-thumb {
     @apply bg-gray-700 rounded;
   }
   
-  ::-webkit-scrollbar-thumb:hover {
+  .dark ::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:hover {
     @apply bg-cyan-800;
   }
   
+  /* Light theme scrollbars */
+  .light ::-webkit-scrollbar-track {
+    @apply bg-gray-200;
+  }
+  
+  .light ::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded;
+  }
+  
+  .light ::-webkit-scrollbar-thumb:hover {
+    @apply bg-blue-400;
+  }
+  
   /* Card styling */
-  .stock-card {
+  .dark .stock-card, .stock-card {
     @apply bg-gray-800 border border-gray-700 rounded-md p-4 transition-all duration-300 hover:border-cyan-700 hover:shadow-lg hover:shadow-cyan-900/20;
+  }
+  
+  .light .stock-card {
+    @apply bg-white border border-gray-300 rounded-md p-4 transition-all duration-300 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-200;
   }
   
   /* Gradient text */
