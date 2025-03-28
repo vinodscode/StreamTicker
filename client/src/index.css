@@ -3,29 +3,6 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
-  }
-
   * {
     @apply border-border;
   }
@@ -37,81 +14,69 @@
   html {
     @apply scroll-smooth;
   }
-
+  
+  .dark {
+    @apply bg-black text-gray-200;
+    color-scheme: dark;
+  }
+  
   .light {
     @apply bg-white text-gray-800;
     color-scheme: light;
   }
 
-  .light .stock-card {
-    @apply bg-white shadow-sm border border-gray-100 rounded-lg;
+  .light .card,
+  .light .dialog,
+  .light .popover,
+  .light .dropdown-menu {
+    @apply bg-white border-gray-200;
   }
 
-  .light .card-header {
-    @apply bg-gray-50 text-gray-700;
+  .light .button-primary {
+    @apply bg-cyan-600 text-white hover:bg-cyan-700;
   }
 
-  .light .price-table {
-    @apply bg-white text-gray-900;
-  }
-
-  .light .price-table th {
-    @apply text-gray-600 bg-gray-50;
-  }
-
-  .light .price-table td {
-    @apply text-gray-800 border-gray-100;
-  }
-
-  .light .positive-change {
-    @apply text-emerald-600;
-  }
-
-  .light .negative-change {
-    @apply text-rose-600;
-  }
-
-  .light .exchange-tag {
-    @apply bg-gray-100 text-gray-600;
+  .light .button-secondary {
+    @apply bg-gray-100 text-gray-900 hover:bg-gray-200;
   }
 }
 
 @layer components {
-  /* Terminal-specific colors - Base theme */
-  .bg-terminal-bg {
-    @apply bg-gradient-to-b from-gray-50 to-white;
+  /* Terminal-specific colors - Dark theme (default) */
+  .dark .bg-terminal-bg, .bg-terminal-bg {
+    @apply bg-gradient-to-b from-gray-950 to-black;
   }
   
-  .bg-terminal-body {
-    @apply bg-white;
+  .dark .bg-terminal-body, .bg-terminal-body {
+    @apply bg-gray-950;
   }
   
-  .bg-terminal-header {
-    @apply bg-gray-50;
+  .dark .bg-terminal-header, .bg-terminal-header {
+    @apply bg-gray-900;
   }
   
-  .border-terminal-border {
-    @apply border-gray-200;
+  .dark .border-terminal-border, .border-terminal-border {
+    @apply border-gray-700;
   }
   
-  .text-terminal-text {
-    @apply text-gray-900;
+  .dark .text-terminal-text, .text-terminal-text {
+    @apply text-gray-200;
   }
   
-  .text-terminal-muted {
+  .dark .text-terminal-muted, .text-terminal-muted {
     @apply text-gray-500;
   }
   
-  .text-terminal-accent {
-    @apply text-cyan-600;
+  .dark .text-terminal-accent, .text-terminal-accent {
+    @apply text-cyan-400;
   }
   
-  .text-terminal-positive {
-    @apply text-emerald-600;
+  .dark .text-terminal-positive, .text-terminal-positive {
+    @apply text-green-400;
   }
   
-  .text-terminal-negative {
-    @apply text-rose-600;
+  .dark .text-terminal-negative, .text-terminal-negative {
+    @apply text-red-400;
   }
   
   /* Terminal-specific colors - Light theme */
