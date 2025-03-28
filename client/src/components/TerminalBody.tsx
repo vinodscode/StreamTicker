@@ -1,5 +1,6 @@
 import { formatTimestamp, formatDateTime, calculateChange } from "@/lib/utils";
 import { ArrowUp, ArrowDown, RefreshCw, AlertCircle, Terminal, Server, Wifi } from "lucide-react";
+import StockCard from "./StockCard";
 
 interface StockData {
   timestamp: string;
@@ -16,6 +17,16 @@ interface TerminalBodyProps {
   previousPrices: Record<string, number>;
   refresh: () => void;
 }
+
+// Map to store exchange names for each stock symbol
+const EXCHANGE_MAP: Record<string, string> = {
+  "CRUDEOIL25APRFUT": "MCX",
+  "SENSEX25401FUT": "BFO",
+  "NIFTY25APRFUT": "NFO",
+  "INFY": "BSE",
+  "USDINR25APRFUT": "CDS",
+  "RELIANCE": "NSE"
+};
 
 export default function TerminalBody({ 
   data, 
@@ -100,35 +111,21 @@ export default function TerminalBody({
           </div>
           
           {/* Data Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {Object.entries(data.data).map(([ticker, tickerData]) => {
               const lastPrice = tickerData.last_price;
               const prevPrice = previousPrices[ticker] || lastPrice;
-              const change = calculateChange(lastPrice, prevPrice);
-              const isPositive = parseFloat(change) >= 0;
-              const changeClass = isPositive 
-                ? 'text-terminal-positive' 
-                : 'text-terminal-negative';
-              const ChangeIcon = isPositive ? ArrowUp : ArrowDown;
-              const changePrefix = isPositive ? '+' : '';
+              const exchange = EXCHANGE_MAP[ticker] || "Unknown";
               
               return (
-                <div key={ticker} className="stock-card">
-                  <div className="flex justify-between items-center mb-2">
-                    <div className="font-bold text-lg text-terminal-accent">{ticker}</div>
-                    <div className="text-terminal-muted text-xs">{formatTimestamp(tickerData.timestamp)}</div>
-                  </div>
-                  
-                  <div className="flex justify-between items-end">
-                    <div className="text-2xl font-mono font-bold text-terminal-text">
-                      {lastPrice.toFixed(2)}
-                    </div>
-                    <div className={`${changeClass} flex items-center font-bold`}>
-                      <ChangeIcon size={16} className="mr-1" />
-                      {changePrefix}{change}%
-                    </div>
-                  </div>
-                </div>
+                <StockCard 
+                  key={ticker}
+                  symbol={ticker}
+                  exchange={exchange}
+                  currentPrice={lastPrice}
+                  previousPrice={prevPrice}
+                  timestamp={tickerData.timestamp}
+                />
               );
             })}
           </div>
@@ -143,6 +140,7 @@ export default function TerminalBody({
               <thead className="text-terminal-muted border-b border-terminal-border">
                 <tr>
                   <th className="text-left py-2 pr-4">TICKER</th>
+                  <th className="text-left py-2 pr-4">EXCHANGE</th>
                   <th className="text-right py-2 pr-4">PRICE</th>
                   <th className="text-right py-2 pr-4">CHANGE</th>
                   <th className="text-right py-2">UPDATED</th>
@@ -158,6 +156,7 @@ export default function TerminalBody({
                     ? 'text-terminal-positive' 
                     : 'text-terminal-negative';
                   const changePrefix = isPositive ? '+' : '';
+                  const exchange = EXCHANGE_MAP[ticker] || "Unknown";
                   
                   return (
                     <tr 
@@ -165,6 +164,7 @@ export default function TerminalBody({
                       className="border-b border-terminal-border border-opacity-50 hover:bg-terminal-header transition-colors"
                     >
                       <td className="py-2 pr-4 font-bold text-terminal-accent">{ticker}</td>
+                      <td className="py-2 pr-4 text-terminal-muted">{exchange}</td>
                       <td className="py-2 pr-4 text-right font-mono">{lastPrice.toFixed(2)}</td>
                       <td className={`py-2 pr-4 text-right ${changeClass} font-bold`}>
                         {changePrefix}{change}%
