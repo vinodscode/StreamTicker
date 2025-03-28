@@ -17,10 +17,27 @@
   
   .dark {
     @apply bg-black text-gray-200;
+    color-scheme: dark;
   }
   
   .light {
     @apply bg-white text-gray-800;
+    color-scheme: light;
+  }
+
+  .light .card,
+  .light .dialog,
+  .light .popover,
+  .light .dropdown-menu {
+    @apply bg-white border-gray-200;
+  }
+
+  .light .button-primary {
+    @apply bg-cyan-600 text-white hover:bg-cyan-700;
+  }
+
+  .light .button-secondary {
+    @apply bg-gray-100 text-gray-900 hover:bg-gray-200;
   }
 }
 
