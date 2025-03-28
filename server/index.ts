@@ -44,8 +44,8 @@ app.use((req, res, next) => {
     const message = err.message || "Internal Server Error";
 
     res.status(status).json({ message });
-    log(`Error: ${status} - ${message}`); // Added error logging for resilience
-    throw err;
+    log(`Error: ${status} - ${message}`);
+    // Don't throw error after handling it
   });
 
   // importantly only setup vite in development and after
