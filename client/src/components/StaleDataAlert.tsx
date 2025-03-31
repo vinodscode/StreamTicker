@@ -42,11 +42,19 @@ export default function StaleDataAlert({
     }
   }, [staleStocks]);
 
-  // Filter stocks based on market hours and monitoring settings
-  const filteredStaleStocks = staleStocks.filter(stock => 
-    // Only include if monitoring is enabled and the market is open
-    settings.monitoringEnabled && shouldShowStaleAlert(stock.exchange)
-  );
+  // Filter stocks based on market hours, monitoring settings, and exchange-specific alerts
+  const filteredStaleStocks = staleStocks.filter(stock => {
+    // Check if exchange alerts are enabled for this exchange
+    const exchangeAlertsEnabled = settings.exchangeAlerts[stock.exchange as keyof typeof settings.exchangeAlerts] !== false;
+    
+    // Only include if:
+    // 1. Global monitoring is enabled
+    // 2. The market for this exchange is open
+    // 3. Alerts for this specific exchange are enabled
+    return settings.monitoringEnabled && 
+           shouldShowStaleAlert(stock.exchange) && 
+           exchangeAlertsEnabled;
+  });
   
   // Check if we should display the alert based on filtered stocks
   const isDisplayed = filteredStaleStocks.length > 0 && isActive && isVisible;

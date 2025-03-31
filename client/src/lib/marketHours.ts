@@ -52,22 +52,38 @@ export const MARKET_SEGMENTS: MarketSegmentHours[] = [
   }
 ];
 
-// Market holidays for 2025 (from Zerodha's calendar)
-// Format: 'YYYY-MM-DD'
-export const MARKET_HOLIDAYS_2025: string[] = [
-  '2025-01-26', // Republic Day
-  '2025-03-29', // Holi
-  '2025-04-14', // Dr.Ambedkar Jayanti
-  '2025-04-18', // Good Friday
-  '2025-05-01', // Maharashtra Day
-  '2025-07-17', // Muharram
-  '2025-08-15', // Independence Day
-  '2025-09-02', // Ganesh Chaturthi
-  '2025-10-02', // Gandhi Jayanti
-  '2025-10-23', // Dussehra
-  '2025-11-12', // Diwali
-  '2025-11-14', // Diwali Balipratipada
-  '2025-12-25', // Christmas
+// Exchange-specific holidays for 2025
+// Format: { date: 'YYYY-MM-DD', exchanges: string[] }
+export interface MarketHoliday {
+  date: string;
+  exchanges: string[];
+  name: string;
+}
+
+export const MARKET_HOLIDAYS_2025: MarketHoliday[] = [
+  // NSE and BSE holidays
+  { date: '2025-01-26', exchanges: ['NSE', 'BSE'], name: 'Republic Day' },
+  { date: '2025-02-26', exchanges: ['NSE', 'BSE'], name: 'Maha Shivaratri' },
+  { date: '2025-03-14', exchanges: ['NSE', 'BSE'], name: 'Holi' },
+  { date: '2025-03-31', exchanges: ['NSE', 'BSE'], name: 'Eid-Ul-Fitr (Ramzan Eid)' },
+  { date: '2025-04-10', exchanges: ['NSE', 'BSE'], name: 'Mahavir Jayanti' },
+  { date: '2025-04-14', exchanges: ['NSE', 'BSE'], name: 'Dr. Baba Saheb Ambedkar Jayanti' },
+  { date: '2025-04-18', exchanges: ['NSE', 'BSE', 'MCX'], name: 'Good Friday' },
+  { date: '2025-05-01', exchanges: ['NSE', 'BSE'], name: 'Maharashtra Day' },
+  { date: '2025-08-15', exchanges: ['NSE', 'BSE', 'MCX'], name: 'Independence Day' },
+  { date: '2025-08-27', exchanges: ['NSE', 'BSE'], name: 'Ganesh Chaturthi' },
+  { date: '2025-10-02', exchanges: ['NSE', 'BSE', 'MCX'], name: 'Mahatma Gandhi Jayanti' },
+  { date: '2025-10-21', exchanges: ['NSE', 'BSE', 'MCX'], name: 'Diwali-Laxmi Pujan (Muhurat trading session)' },
+  { date: '2025-10-22', exchanges: ['NSE', 'BSE'], name: 'Diwali-Balipratipada' },
+  { date: '2025-11-05', exchanges: ['NSE', 'BSE'], name: 'Gurunanak Jayanti' },
+  { date: '2025-12-25', exchanges: ['NSE', 'BSE', 'MCX'], name: 'Christmas' },
+  
+  // MCX-specific holidays
+  { date: '2025-01-26', exchanges: ['MCX'], name: 'Republic Day' },
+  { date: '2025-08-15', exchanges: ['MCX'], name: 'Independence Day' },
+  { date: '2025-10-02', exchanges: ['MCX'], name: 'Mahatma Gandhi Jayanti' },
+  { date: '2025-10-21', exchanges: ['MCX'], name: 'Diwali-Laxmi Pujan (Muhurat trading session)' },
+  { date: '2025-12-25', exchanges: ['MCX'], name: 'Christmas' }
 ];
 
 /**
@@ -97,10 +113,16 @@ export function isWithinMarketHours(exchange: string): boolean {
   // Format current time as HH:MM for comparison
   const currentTime = `${hour24.toString().padStart(2, '0')}:${minutes}`;
   
-  // Check if today is a holiday
+  // Check if today is a holiday for this exchange
   const istDate = new Date(istDateStr);
   const dateString = istDate.toISOString().split('T')[0]; // YYYY-MM-DD
-  if (MARKET_HOLIDAYS_2025.includes(dateString)) {
+  
+  // Check if there's a holiday for this exchange on current date
+  const isHoliday = MARKET_HOLIDAYS_2025.some(
+    holiday => holiday.date === dateString && holiday.exchanges.includes(exchange)
+  );
+  
+  if (isHoliday) {
     return false;
   }
   
@@ -155,12 +177,16 @@ export function getMarketStatus(exchange: string): {
     const istDateStr = now.toLocaleDateString('en-US', istOptions);
     const istDate = new Date(istDateStr);
     
-    // Check if today is a holiday
+    // Check if today is a holiday for this exchange
     const dateString = istDate.toISOString().split('T')[0]; // YYYY-MM-DD
-    if (MARKET_HOLIDAYS_2025.includes(dateString)) {
+    const holiday = MARKET_HOLIDAYS_2025.find(
+      h => h.date === dateString && h.exchanges.includes(exchange)
+    );
+    
+    if (holiday) {
       return {
         isOpen: false,
-        message: `Market Closed (Holiday)`,
+        message: `Market Closed (${holiday.name})`,
         nextOpeningTime: 'Check calendar for next trading day'
       };
     }

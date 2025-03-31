@@ -52,32 +52,32 @@ export default function NotificationHistory({ isOpen, onClose }: NotificationHis
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center overflow-hidden transition-all duration-300">
-      <div className="relative w-full max-w-3xl max-h-[90vh] dark:bg-terminal-body bg-white rounded-lg shadow-2xl border border-terminal-border overflow-hidden">
-        <div className="sticky top-0 dark:bg-terminal-header bg-gray-100 border-b border-terminal-border p-4 flex justify-between items-center">
+      <div className="relative w-full max-w-3xl max-h-[90vh] bg-monitor-card rounded-lg shadow-2xl border border-monitor overflow-hidden">
+        <div className="sticky top-0 bg-monitor-card-header border-b border-monitor p-4 flex justify-between items-center">
           <div className="flex items-center">
-            <Bell className="text-terminal-accent mr-2" />
-            <h2 className="text-lg font-bold dark:text-terminal-text text-gray-800">Notification History</h2>
+            <Bell className="text-monitor-accent mr-2" />
+            <h2 className="text-lg font-bold text-monitor-heading">Notification History</h2>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={clearAllNotifications}
-              className="p-2 hover:bg-opacity-20 hover:bg-terminal-muted rounded-md transition-colors"
+              className="p-2 hover:bg-monitor-card-hover rounded-md transition-colors"
               title="Clear Notifications"
             >
-              <Trash2 className="text-terminal-muted hover:text-terminal-negative" size={18} />
+              <Trash2 className="text-monitor-muted hover:text-monitor-warning" size={18} />
             </button>
             <button 
               onClick={onClose}
-              className="p-1 hover:bg-opacity-20 hover:bg-terminal-muted rounded-full transition-colors"
+              className="p-1 hover:bg-monitor-card-hover rounded-full transition-colors"
             >
-              <XCircle className="text-terminal-muted hover:text-terminal-negative" />
+              <XCircle className="text-monitor-muted hover:text-monitor-warning" />
             </button>
           </div>
         </div>
         
-        <div className="overflow-y-auto max-h-[calc(90vh-4rem)] p-4">
+        <div className="overflow-y-auto max-h-[calc(90vh-4rem)] p-4 bg-monitor-card">
           {notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center py-12 text-terminal-muted">
+            <div className="flex flex-col items-center justify-center text-center py-12 text-monitor-muted">
               <Bell className="mb-2 opacity-30" size={40} />
               <p>No notifications yet.</p>
               <p className="text-sm mt-1">Alerts about stale data will appear here.</p>
@@ -89,10 +89,10 @@ export default function NotificationHistory({ isOpen, onClose }: NotificationHis
                   key={notification.id} 
                   className={`border-l-4 ${
                     notification.type === 'stale' 
-                      ? 'dark:border-yellow-500 dark:bg-yellow-900/20 border-yellow-500 bg-yellow-100/80' 
+                      ? 'border-yellow-500 bg-yellow-900/20' 
                       : notification.type === 'error'
-                        ? 'dark:border-red-500 dark:bg-red-900/20 border-red-500 bg-red-100/80'
-                        : 'dark:border-blue-500 dark:bg-blue-900/20 border-blue-500 bg-blue-100/80'
+                        ? 'border-red-500 bg-red-900/20'
+                        : 'border-blue-500 bg-blue-900/20'
                   } p-3 rounded-r-md`}
                 >
                   <div className="flex justify-between items-start">
@@ -105,20 +105,20 @@ export default function NotificationHistory({ isOpen, onClose }: NotificationHis
                         <Bell className="text-blue-500 mt-1" size={16} />
                       )}
                       <div>
-                        <div className="font-medium dark:text-terminal-text text-gray-800">
+                        <div className="font-medium text-monitor-text">
                           {notification.symbol ? (
                             <span className="font-mono">{notification.symbol}</span>
                           ) : "System Alert"}
                           {notification.exchange && (
-                            <span className="text-xs ml-2 dark:bg-gray-800 bg-gray-200 px-2 py-0.5 rounded-md">
+                            <span className="text-xs ml-2 bg-monitor-card-accent px-2 py-0.5 rounded-md">
                               {notification.exchange}
                             </span>
                           )}
                         </div>
-                        <p className="text-sm dark:text-terminal-text text-gray-600 mt-1">{notification.message}</p>
+                        <p className="text-sm text-monitor-text mt-1">{notification.message}</p>
                       </div>
                     </div>
-                    <div className="text-xs text-terminal-muted flex items-center">
+                    <div className="text-xs text-monitor-muted flex items-center">
                       <Clock size={12} className="mr-1" />
                       {notification.timestamp.toLocaleTimeString('en-IN', {
                         hour: "2-digit" as const,

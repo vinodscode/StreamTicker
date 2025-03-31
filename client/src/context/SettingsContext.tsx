@@ -14,6 +14,14 @@ export interface SettingsState {
   monitoringEnabled: boolean;
   // Default threshold for stocks without a custom setting (in milliseconds)
   defaultThreshold: number;
+  // Per-exchange segment alert toggles
+  exchangeAlerts: {
+    NSE: boolean;
+    BSE: boolean;
+    MCX: boolean;
+    NFO: boolean;
+    CDS: boolean;
+  };
 }
 
 interface SettingsContextType {
@@ -21,6 +29,7 @@ interface SettingsContextType {
   updateStockThreshold: (ticker: string, exchange: string, thresholdSeconds: number) => void;
   removeStockThreshold: (ticker: string) => void;
   toggleMonitoring: () => void;
+  toggleExchangeAlert: (exchange: string) => void;
   updateDefaultThreshold: (thresholdSeconds: number) => void;
   getThresholdForStock: (ticker: string) => number;
 }
@@ -30,6 +39,13 @@ const defaultSettings: SettingsState = {
   stockThresholds: [],
   monitoringEnabled: true,
   defaultThreshold: 30000, // 30 seconds in milliseconds
+  exchangeAlerts: {
+    NSE: true,
+    BSE: true,
+    MCX: true,
+    NFO: true,
+    CDS: true
+  }
 };
 
 // Local storage key
@@ -106,6 +122,23 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  // Toggle alerts for a specific exchange
+  const toggleExchangeAlert = (exchange: string) => {
+    setSettings((prevSettings) => {
+      if (exchange in prevSettings.exchangeAlerts) {
+        const exchangeAlerts = { ...prevSettings.exchangeAlerts };
+        exchangeAlerts[exchange as keyof typeof exchangeAlerts] = 
+          !exchangeAlerts[exchange as keyof typeof exchangeAlerts];
+        
+        return {
+          ...prevSettings,
+          exchangeAlerts
+        };
+      }
+      return prevSettings;
+    });
+  };
+
   // Update default threshold
   const updateDefaultThreshold = (thresholdSeconds: number) => {
     setSettings((prevSettings) => ({
@@ -127,6 +160,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         updateStockThreshold,
         removeStockThreshold,
         toggleMonitoring,
+        toggleExchangeAlert,
         updateDefaultThreshold,
         getThresholdForStock,
       }}

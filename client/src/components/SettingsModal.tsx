@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Info, Clock, AlertTriangle, Settings as SettingsIcon, ToggleLeft, ToggleRight } from 'lucide-react';
+import { X, Info, Clock, AlertTriangle, Settings as SettingsIcon, ToggleLeft, ToggleRight, Bell } from 'lucide-react';
 import { useSettings } from '@/context/SettingsContext';
 
 interface SettingsModalProps {
@@ -14,6 +14,7 @@ export default function SettingsModal({ isOpen, onClose, availableStocks }: Sett
     updateStockThreshold, 
     removeStockThreshold, 
     toggleMonitoring,
+    toggleExchangeAlert,
     updateDefaultThreshold 
   } = useSettings();
   
@@ -98,6 +99,42 @@ export default function SettingsModal({ isOpen, onClose, availableStocks }: Sett
               {settings.monitoringEnabled 
                 ? "Monitoring is active. You will receive alerts for stale data." 
                 : "Monitoring is disabled. You won't receive any alerts until tomorrow."}
+            </p>
+          </div>
+          
+          {/* Exchange-specific alerts */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <label className="font-medium text-sm flex items-center gap-1.5">
+                <Bell size={16} className="text-monitor-accent" />
+                Exchange Alerts
+              </label>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              {Object.entries(settings.exchangeAlerts).map(([exchange, enabled]) => (
+                <div 
+                  key={exchange}
+                  className="flex items-center justify-between p-2 border border-monitor rounded-md"
+                >
+                  <span className="text-sm font-medium">{exchange}</span>
+                  <button 
+                    onClick={() => toggleExchangeAlert(exchange)}
+                    className="text-monitor-accent p-1"
+                    aria-label={enabled ? `Disable ${exchange} alerts` : `Enable ${exchange} alerts`}
+                  >
+                    {enabled ? (
+                      <ToggleRight size={20} className="text-green-500" />
+                    ) : (
+                      <ToggleLeft size={20} className="text-monitor-muted" />
+                    )}
+                  </button>
+                </div>
+              ))}
+            </div>
+            
+            <p className="text-xs text-monitor-muted">
+              Toggle alerts for specific exchanges
             </p>
           </div>
           
