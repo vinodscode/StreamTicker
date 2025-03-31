@@ -21,6 +21,8 @@ export interface SettingsState {
     MCX: boolean;
     NFO: boolean;
     CDS: boolean;
+    BFO: boolean;
+    [key: string]: boolean; // Allow for any other exchanges
   };
 }
 
@@ -44,7 +46,8 @@ const defaultSettings: SettingsState = {
     BSE: true,
     MCX: true,
     NFO: true,
-    CDS: true
+    CDS: true,
+    BFO: true
   }
 };
 
@@ -57,8 +60,30 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 export function SettingsProvider({ children }: { children: ReactNode }) {
   // Initialize state from local storage or default
   const [settings, setSettings] = useState<SettingsState>(() => {
-    const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
-    return savedSettings ? JSON.parse(savedSettings) : defaultSettings;
+    try {
+      const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+      
+      // If there are saved settings, parse them
+      if (savedSettings) {
+        const parsedSettings = JSON.parse(savedSettings);
+        
+        // Check if exchangeAlerts property exists - if not, this is an old settings format
+        // that needs to be migrated to the new format
+        if (!parsedSettings.exchangeAlerts) {
+          return {
+            ...parsedSettings,
+            exchangeAlerts: defaultSettings.exchangeAlerts
+          };
+        }
+        
+        return parsedSettings;
+      }
+      
+      return defaultSettings;
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      return defaultSettings;
+    }
   });
 
   // Update local storage when settings change
@@ -127,15 +152,23 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setSettings((prevSettings) => {
       if (exchange in prevSettings.exchangeAlerts) {
         const exchangeAlerts = { ...prevSettings.exchangeAlerts };
-        exchangeAlerts[exchange as keyof typeof exchangeAlerts] = 
-          !exchangeAlerts[exchange as keyof typeof exchangeAlerts];
+        // Use string indexing now that we've added [key: string]: boolean
+        exchangeAlerts[exchange] = !exchangeAlerts[exchange];
         
         return {
           ...prevSettings,
           exchangeAlerts
         };
+      } else {
+        // If the exchange doesn't exist in our alerts, add it with true as default
+        return {
+          ...prevSettings,
+          exchangeAlerts: {
+            ...prevSettings.exchangeAlerts,
+            [exchange]: true
+          }
+        };
       }
-      return prevSettings;
     });
   };
 

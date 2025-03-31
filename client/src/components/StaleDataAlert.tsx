@@ -45,7 +45,11 @@ export default function StaleDataAlert({
   // Filter stocks based on market hours, monitoring settings, and exchange-specific alerts
   const filteredStaleStocks = staleStocks.filter(stock => {
     // Check if exchange alerts are enabled for this exchange
-    const exchangeAlertsEnabled = settings.exchangeAlerts[stock.exchange as keyof typeof settings.exchangeAlerts] !== false;
+    // Default to true if the exchange is not in our settings (allow alerts for unknown exchanges)
+    const exchangeKey = stock.exchange as keyof typeof settings.exchangeAlerts;
+    const exchangeAlertsEnabled = settings.exchangeAlerts[exchangeKey] !== undefined 
+      ? settings.exchangeAlerts[exchangeKey] 
+      : true;
     
     // Only include if:
     // 1. Global monitoring is enabled

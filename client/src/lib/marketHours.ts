@@ -60,6 +60,13 @@ export interface MarketHoliday {
   name: string;
 }
 
+// Helper function to check if a date is a holiday for a specific exchange
+export function isHolidayForExchange(dateString: string, exchange: string): boolean {
+  return MARKET_HOLIDAYS_2025.some(
+    holiday => holiday.date === dateString && holiday.exchanges.includes(exchange)
+  );
+}
+
 export const MARKET_HOLIDAYS_2025: MarketHoliday[] = [
   // NSE and BSE holidays
   { date: '2025-01-26', exchanges: ['NSE', 'BSE'], name: 'Republic Day' },
@@ -118,9 +125,7 @@ export function isWithinMarketHours(exchange: string): boolean {
   const dateString = istDate.toISOString().split('T')[0]; // YYYY-MM-DD
   
   // Check if there's a holiday for this exchange on current date
-  const isHoliday = MARKET_HOLIDAYS_2025.some(
-    holiday => holiday.date === dateString && holiday.exchanges.includes(exchange)
-  );
+  const isHoliday = isHolidayForExchange(dateString, exchange);
   
   if (isHoliday) {
     return false;
@@ -179,9 +184,12 @@ export function getMarketStatus(exchange: string): {
     
     // Check if today is a holiday for this exchange
     const dateString = istDate.toISOString().split('T')[0]; // YYYY-MM-DD
-    const holiday = MARKET_HOLIDAYS_2025.find(
-      h => h.date === dateString && h.exchanges.includes(exchange)
-    );
+    const isHoliday = isHolidayForExchange(dateString, exchange);
+    
+    // Find the specific holiday information if it is a holiday
+    const holiday = isHoliday ? 
+      MARKET_HOLIDAYS_2025.find(h => h.date === dateString && h.exchanges.includes(exchange)) : 
+      null;
     
     if (holiday) {
       return {
