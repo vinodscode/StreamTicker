@@ -2,57 +2,8 @@ import React, { useState } from 'react';
 import { X, Info, Clock, AlertTriangle, Settings as SettingsIcon, ToggleLeft, ToggleRight, Bell } from 'lucide-react';
 import { useSettings } from '@/context/SettingsContext';
 
-interface SettingsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  availableStocks: Array<{ ticker: string; exchange: string }>;
-}
-
-export default function SettingsModal({ isOpen, onClose, availableStocks }: SettingsModalProps) {
-  const { 
-    settings, 
-    updateStockThreshold, 
-    removeStockThreshold, 
-    toggleMonitoring,
-    toggleExchangeAlert,
-    updateDefaultThreshold 
-  } = useSettings();
-  
-  const [editingThreshold, setEditingThreshold] = useState<{
-    ticker: string;
-    seconds: number;
-  } | null>(null);
-  
-  const [defaultThresholdInput, setDefaultThresholdInput] = useState(settings.defaultThreshold / 1000);
-
-  // Handle threshold change for a stock
-  const handleThresholdChange = (ticker: string, exchange: string) => {
-    if (editingThreshold && editingThreshold.ticker === ticker) {
-      // Save the edited threshold
-      updateStockThreshold(ticker, exchange, editingThreshold.seconds);
-      setEditingThreshold(null);
-    } else {
-      // Start editing this stock's threshold
-      const existingThreshold = settings.stockThresholds.find(s => s.ticker === ticker);
-      setEditingThreshold({
-        ticker,
-        seconds: existingThreshold ? existingThreshold.threshold / 1000 : settings.defaultThreshold / 1000
-      });
-    }
-  };
-
-  // Handle removing a custom threshold
-  const handleRemoveThreshold = (ticker: string) => {
-    removeStockThreshold(ticker);
-    if (editingThreshold && editingThreshold.ticker === ticker) {
-      setEditingThreshold(null);
-    }
-  };
-
-  // Handle default threshold change
-  const handleDefaultThresholdChange = () => {
-    updateDefaultThreshold(defaultThresholdInput);
-  };
+export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { settings, toggleMonitoring, toggleExchangeAlert } = useSettings();
 
   if (!isOpen) return null;
 
@@ -73,7 +24,7 @@ export default function SettingsModal({ isOpen, onClose, availableStocks }: Sett
             <X size={18} />
           </button>
         </div>
-        
+
         {/* Content */}
         <div className="p-4">
           {/* Global Monitoring Toggle */}
@@ -101,7 +52,7 @@ export default function SettingsModal({ isOpen, onClose, availableStocks }: Sett
                 : "Monitoring is disabled. You won't receive any alerts until tomorrow."}
             </p>
           </div>
-          
+
           {/* Exchange-specific alerts */}
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
@@ -110,7 +61,7 @@ export default function SettingsModal({ isOpen, onClose, availableStocks }: Sett
                 Exchange Alerts
               </label>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-2 mb-2">
               {Object.entries(settings.exchangeAlerts).map(([exchange, enabled]) => (
                 <div 
@@ -118,7 +69,7 @@ export default function SettingsModal({ isOpen, onClose, availableStocks }: Sett
                   className="flex items-center justify-between p-2 border border-monitor rounded-md"
                 >
                   <span className="text-sm font-medium">{exchange}</span>
-                  <button 
+                  <button
                     onClick={() => toggleExchangeAlert(exchange)}
                     className="text-monitor-accent p-1"
                     aria-label={enabled ? `Disable ${exchange} alerts` : `Enable ${exchange} alerts`}
@@ -132,138 +83,8 @@ export default function SettingsModal({ isOpen, onClose, availableStocks }: Sett
                 </div>
               ))}
             </div>
-            
-            <p className="text-xs text-monitor-muted">
-              Toggle alerts for specific exchanges
-            </p>
-          </div>
-          
-          {/* Default Threshold */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="font-medium text-sm flex items-center gap-1.5">
-                <Clock size={16} className="text-monitor-accent" />
-                Default Alert Threshold
-              </label>
-              
-              <div className="flex items-center gap-2">
-                <input 
-                  type="number" 
-                  min="5"
-                  max="300"
-                  value={defaultThresholdInput}
-                  onChange={(e) => setDefaultThresholdInput(Number(e.target.value))}
-                  onBlur={handleDefaultThresholdChange}
-                  className="w-16 p-1 text-right bg-monitor-input border border-monitor rounded-md"
-                />
-                <span className="text-sm text-monitor-muted">seconds</span>
-              </div>
-            </div>
-            <p className="text-xs text-monitor-muted">
-              Applied to all instruments without a custom threshold
-            </p>
-          </div>
-          
-          {/* Stock-specific thresholds */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-medium">Per-Instrument Thresholds</h3>
-            </div>
-            
-            <div className="border border-monitor rounded-md overflow-hidden">
-              <div className="max-h-60 overflow-y-auto">
-                {availableStocks.length === 0 ? (
-                  <div className="p-3 text-sm text-monitor-muted italic">
-                    No stock data available
-                  </div>
-                ) : (
-                  <table className="w-full">
-                    <thead className="bg-monitor-card-header text-xs">
-                      <tr>
-                        <th className="text-left p-2">Stock</th>
-                        <th className="text-left p-2">Exchange</th>
-                        <th className="text-right p-2">Threshold</th>
-                        <th className="p-2 w-8"></th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-monitor">
-                      {availableStocks.map((stock) => {
-                        const customThreshold = settings.stockThresholds.find(
-                          (s) => s.ticker === stock.ticker
-                        );
-                        
-                        const isEditing = editingThreshold && editingThreshold.ticker === stock.ticker;
-                        
-                        return (
-                          <tr key={stock.ticker} className="hover:bg-monitor-card-hover">
-                            <td className="p-2 text-sm font-mono">{stock.ticker}</td>
-                            <td className="p-2 text-sm text-monitor-muted">{stock.exchange}</td>
-                            <td className="p-2 text-right text-sm">
-                              {isEditing ? (
-                                <input 
-                                  type="number"
-                                  min="5"
-                                  max="300" 
-                                  value={editingThreshold.seconds}
-                                  onChange={(e) => setEditingThreshold({
-                                    ...editingThreshold,
-                                    seconds: Number(e.target.value)
-                                  })}
-                                  className="w-16 p-1 text-right bg-monitor-input border border-monitor rounded-md"
-                                  autoFocus
-                                />
-                              ) : (
-                                <span>
-                                  {customThreshold 
-                                    ? `${customThreshold.threshold / 1000}s` 
-                                    : `${settings.defaultThreshold / 1000}s (default)`}
-                                </span>
-                              )}
-                            </td>
-                            <td className="p-2">
-                              {customThreshold ? (
-                                <div className="flex items-center gap-1">
-                                  <button
-                                    onClick={() => handleThresholdChange(stock.ticker, stock.exchange)}
-                                    className="p-1 text-monitor-accent hover:bg-monitor/20 rounded"
-                                    title={isEditing ? "Save" : "Edit"}
-                                  >
-                                    {isEditing ? "✓" : "✎"}
-                                  </button>
-                                  <button
-                                    onClick={() => handleRemoveThreshold(stock.ticker)}
-                                    className="p-1 text-monitor-warning hover:bg-monitor-warning/20 rounded"
-                                    title="Reset to default"
-                                  >
-                                    ×
-                                  </button>
-                                </div>
-                              ) : (
-                                <button
-                                  onClick={() => handleThresholdChange(stock.ticker, stock.exchange)}
-                                  className="p-1 text-monitor-accent hover:bg-monitor/20 rounded"
-                                  title="Set custom threshold"
-                                >
-                                  ✎
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-1.5 mt-2 text-xs text-monitor-muted">
-              <Info size={12} />
-              <span>Custom thresholds are saved across sessions</span>
-            </div>
           </div>
         </div>
-        
         {/* Footer */}
         <div className="border-t border-monitor p-3 bg-monitor-card-footer flex justify-end">
           <button
