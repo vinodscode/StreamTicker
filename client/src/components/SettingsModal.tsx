@@ -1,27 +1,33 @@
-import React, { useState } from 'react';
-import { X, Info, Clock, AlertTriangle, Settings as SettingsIcon, ToggleLeft, ToggleRight, Bell } from 'lucide-react';
-import { useSettings } from '@/context/SettingsContext';
+import React from 'react';
+import { X, AlertTriangle, ToggleLeft, ToggleRight } from "lucide-react";
+import { useSettings } from "@/context/SettingsContext";
 
-export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const { settings, toggleMonitoring, toggleExchangeAlert } = useSettings();
+export default function SettingsModal({ onClose }: { onClose: () => void }) {
+  const { settings, updateSettings } = useSettings();
 
-  if (!isOpen) return null;
+  if (!settings) {
+    return null; // Return early if settings aren't loaded yet
+  }
+
+  const toggleMonitoring = () => {
+    updateSettings({
+      ...settings,
+      monitoringEnabled: !settings.monitoringEnabled
+    });
+  };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-      <div className="bg-monitor-card border border-monitor rounded-lg w-full max-w-md mx-4 overflow-hidden shadow-xl">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-monitor-bg rounded-lg w-full max-w-md mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 bg-monitor-card-header border-b border-monitor">
-          <div className="font-bold text-lg text-monitor-heading flex items-center gap-2">
-            <SettingsIcon size={18} className="text-monitor-accent" />
-            <span>Alert Settings</span>
-          </div>
-          <button 
+        <div className="flex items-center justify-between p-4 border-b border-monitor">
+          <h2 className="text-lg font-medium">Settings</h2>
+          <button
             onClick={onClose}
-            className="p-1 rounded hover:bg-monitor-card-hover"
+            className="text-monitor-muted hover:text-monitor-text"
             aria-label="Close settings"
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
 
@@ -52,47 +58,6 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; on
                 : "Monitoring is disabled. You won't receive any alerts until tomorrow."}
             </p>
           </div>
-
-          {/* Exchange-specific alerts */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="font-medium text-sm flex items-center gap-1.5">
-                <Bell size={16} className="text-monitor-accent" />
-                Exchange Alerts
-              </label>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 mb-2">
-              {Object.entries(settings.exchangeAlerts).map(([exchange, enabled]) => (
-                <div 
-                  key={exchange}
-                  className="flex items-center justify-between p-2 border border-monitor rounded-md"
-                >
-                  <span className="text-sm font-medium">{exchange}</span>
-                  <button
-                    onClick={() => toggleExchangeAlert(exchange)}
-                    className="text-monitor-accent p-1"
-                    aria-label={enabled ? `Disable ${exchange} alerts` : `Enable ${exchange} alerts`}
-                  >
-                    {enabled ? (
-                      <ToggleRight size={20} className="text-green-500" />
-                    ) : (
-                      <ToggleLeft size={20} className="text-monitor-muted" />
-                    )}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        {/* Footer */}
-        <div className="border-t border-monitor p-3 bg-monitor-card-footer flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-monitor-accent text-white rounded-md hover:bg-monitor-accent/80 transition-colors"
-          >
-            Close
-          </button>
         </div>
       </div>
     </div>
