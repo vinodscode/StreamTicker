@@ -146,7 +146,7 @@
 
 @layer components {
   /* Modern Market Monitor - Dark Theme (default) */
-  
+
   /* Core text colors */
   .text-monitor-text {
     @apply text-slate-200;
@@ -180,7 +180,7 @@
   .bg-monitor-body {
     @apply bg-slate-950;
   }
-  
+
   .bg-monitor-panel {
     @apply bg-slate-900;
   }
@@ -201,43 +201,43 @@
   .bg-monitor-alert {
     @apply bg-rose-900/90;
   }
-  
+
   .text-monitor-alert-icon {
     @apply text-amber-300;
   }
-  
+
   .text-monitor-alert-title {
     @apply text-amber-300;
   }
-  
+
   .text-monitor-alert-text {
     @apply text-slate-200;
   }
-  
+
   .text-monitor-alert-muted {
     @apply text-slate-400;
   }
-  
+
   .text-monitor-alert-highlight {
     @apply text-amber-200;
   }
-  
+
   .bg-monitor-alert-badge {
     @apply bg-amber-300;
   }
-  
+
   .border-monitor-alert-border {
     @apply border-rose-800;
   }
-  
+
   .bg-monitor-alert-button {
     @apply bg-rose-800;
   }
-  
+
   .bg-monitor-alert-button-hover {
     @apply bg-rose-700;
   }
-  
+
   .text-monitor-alert-button-icon {
     @apply text-rose-200;
   }
@@ -268,19 +268,19 @@
   .light .text-monitor-muted {
     @apply text-slate-500;
   }
-  
+
   .light .text-monitor-positive {
     @apply text-emerald-600;
   }
-  
+
   .light .text-monitor-negative {
     @apply text-rose-600;
   }
-  
+
   .light .text-monitor-warning {
     @apply text-amber-600;
   }
-  
+
   .light .bg-monitor-body {
     @apply bg-slate-100;
   }
@@ -288,74 +288,74 @@
   .light .bg-monitor-panel {
     @apply bg-white;
   }
-  
+
   .light .bg-monitor-card {
     @apply bg-white;
   }
-  
+
   .light .bg-monitor-header {
     @apply bg-slate-50;
   }
-  
+
   .light .bg-monitor-accent {
     @apply bg-blue-600;
   }
-  
+
   .light .border-monitor {
     @apply border-slate-200;
   }
-  
+
   /* Light theme alert */
   .light .bg-monitor-alert {
     @apply bg-rose-100;
   }
-  
+
   .light .text-monitor-alert-icon {
     @apply text-amber-600;
   }
-  
+
   .light .text-monitor-alert-title {
     @apply text-rose-700;
   }
-  
+
   .light .text-monitor-alert-text {
     @apply text-slate-800;
   }
-  
+
   .light .text-monitor-alert-muted {
     @apply text-slate-600;
   }
-  
+
   .light .text-monitor-alert-highlight {
     @apply text-rose-700;
   }
-  
+
   .light .bg-monitor-alert-badge {
     @apply bg-amber-500;
   }
-  
+
   .light .border-monitor-alert-border {
     @apply border-rose-300;
   }
-  
+
   .light .bg-monitor-alert-button {
     @apply bg-rose-200;
   }
-  
+
   .light .bg-monitor-alert-button-hover {
     @apply bg-rose-300;
   }
-  
+
   .light .text-monitor-alert-button-icon {
     @apply text-rose-700;
   }
-  
+
   /* Animation for blinking cursor */
   @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
   }
-  
+
   /* Animation for stale data indicators */
   @keyframes stale-pulse {
     0%, 100% { 
@@ -379,194 +379,210 @@
       box-shadow: 0 0 0 3px rgba(16, 185, 129, 0);
     }
   }
-  
+
   .stale-pulse {
     animation: stale-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-  
+
   .active-pulse {
     animation: active-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-  
+
   /* Global scrollbar styling */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
-  
+
   ::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   ::-webkit-scrollbar-thumb {
     @apply bg-slate-500/50 rounded-full;
   }
-  
+
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-blue-500/50;
   }
-  
+
   /* Card styling */
   .stock-card {
     @apply bg-slate-800 border border-slate-700 rounded-lg overflow-hidden transition-all duration-300
            hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-900/20 flex flex-col h-full;
   }
-  
+
   .light .stock-card {
     @apply bg-white border border-slate-200 rounded-lg overflow-hidden transition-all duration-300
            hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/10 hover:bg-slate-50;
   }
-  
+
   /* Stale stock card styling */
   .stale-card {
     @apply bg-rose-900/20 border-rose-800/50 hover:border-rose-500/50 hover:shadow-rose-900/30;
   }
-  
+
   .light .stale-card {
     @apply bg-rose-50 border-rose-200 hover:border-rose-400/50 hover:shadow-rose-500/20;
   }
-  
+
   /* Modern dashboard grid */
   .dashboard-grid {
     @apply grid gap-4 md:gap-6;
     grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   }
-  
+
   /* Card header & body sections */
   .card-header {
-    @apply p-4 border-b border-monitor flex justify-between items-center bg-slate-900/50;
+    @apply p-4 border-b border-monitor flex justify-between items-center;
   }
-  
+
+  .dark .card-header {
+    @apply bg-slate-900/50 border-slate-700;
+  }
+
   .light .card-header {
     @apply bg-slate-50 border-slate-200;
   }
-  
+
   .card-body {
     @apply p-4;
   }
-  
-  .card-footer {
-    @apply p-3 mt-auto border-t border-monitor bg-slate-900/30;
+
+  .dark .card-body {
+    @apply bg-slate-900/30 text-slate-200;
   }
-  
+
+  .light .card-body {
+    @apply bg-white text-slate-700;
+  }
+
+  .card-footer {
+    @apply p-3 mt-auto border-t border-monitor;
+  }
+
+  .dark .card-footer {
+    @apply bg-slate-900/30 border-slate-700;
+  }
+
   .light .card-footer {
     @apply bg-slate-50/50;
   }
-  
+
   /* Status indicators */
   .status-indicator {
     @apply inline-block w-2 h-2 rounded-full mr-2;
   }
-  
+
   .status-active {
     @apply bg-emerald-500;
   }
-  
+
   .status-warning {
     @apply bg-amber-500;
   }
-  
+
   .status-stale {
     @apply bg-rose-500;
   }
-  
+
   /* Badge styles */
   .badge {
     @apply inline-flex px-2 py-0.5 text-xs font-medium rounded-full;
   }
-  
+
   .badge-success {
     @apply bg-emerald-100 text-emerald-700;
   }
-  
+
   .dark .badge-success {
     @apply bg-emerald-900/40 text-emerald-400;
   }
-  
+
   .badge-warning {
     @apply bg-amber-100 text-amber-700;
   }
-  
+
   .dark .badge-warning {
     @apply bg-amber-900/40 text-amber-400;
   }
-  
+
   .badge-danger {
     @apply bg-rose-100 text-rose-700;
   }
-  
+
   .dark .badge-danger {
     @apply bg-rose-900/40 text-rose-400;
   }
-  
+
   /* Gradient text */
   .gradient-text {
     @apply bg-clip-text text-transparent;
   }
-  
+
   .gradient-blue {
     @apply bg-gradient-to-r from-blue-400 to-violet-500;
   }
-  
+
   .gradient-green {
     @apply bg-gradient-to-r from-emerald-400 to-teal-500;
   }
-  
+
   .gradient-red {
     @apply bg-gradient-to-r from-rose-500 to-pink-600;
   }
-  
+
   /* Glass morphism effect */
   .glass {
     @apply bg-white/5 backdrop-blur-sm border-white/10 shadow-sm;
   }
-  
+
   .light .glass {
     @apply bg-slate-500/5 backdrop-blur-sm border-slate-500/10 shadow-sm;
   }
-  
+
   /* Data table styling */
   .data-table {
     @apply w-full border-collapse;
   }
-  
+
   .data-table th {
     @apply text-xs uppercase tracking-wider text-left py-3 px-4 border-b border-slate-700 bg-slate-900/50 text-slate-400 font-medium;
   }
-  
+
   .light .data-table th {
     @apply border-slate-200 bg-slate-50 text-slate-600;
   }
-  
+
   .data-table td {
     @apply py-3 px-4 border-b border-slate-800/50;
   }
-  
+
   .light .data-table td {
     @apply border-slate-100;
   }
-  
+
   .data-table tr:hover td {
     @apply bg-slate-800/50;
   }
-  
+
   .light .data-table tr:hover td {
     @apply bg-slate-50;
   }
-  
+
   /* Row stale state */
   tr.row-stale td {
     @apply bg-rose-900/10 border-rose-800/20;
   }
-  
+
   tr.row-stale:hover td {
     @apply bg-rose-900/20;
   }
-  
+
   .light tr.row-stale td {
     @apply bg-rose-50 border-rose-100;
   }
-  
+
   .light tr.row-stale:hover td {
     @apply bg-rose-100/50;
   }
