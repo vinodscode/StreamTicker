@@ -4,10 +4,12 @@ import TerminalBody from "./TerminalBody";
 import TerminalFooter from "./TerminalFooter";
 import StaleDataAlert from "./StaleDataAlert";
 import NotificationHistory from "./NotificationHistory";
+import SettingsModal from "./SettingsModal";
 import { useStockData } from "@/hooks/useStockData";
 
 export default function TerminalApp() {
   const [isNotificationHistoryOpen, setIsNotificationHistoryOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   
   const { 
     data, 
@@ -21,9 +23,6 @@ export default function TerminalApp() {
     previousPrices,
     staleStocks
   } = useStockData();
-
-  // Configure stale data alert for 30 seconds of inactivity
-  const STALE_DATA_THRESHOLD_MS = 30000;  // 30 seconds
   
   // Handle opening notification history
   const handleViewNotifications = () => {
@@ -44,16 +43,50 @@ export default function TerminalApp() {
       window.clearAllStockNotifications();
     }
   };
+  
+  // Handle opening settings modal
+  const handleOpenSettings = () => {
+    setIsSettingsModalOpen(true);
+  };
+  
+  // Handle closing settings modal
+  const handleCloseSettings = () => {
+    setIsSettingsModalOpen(false);
+  };
+  
+  // Extract available stocks from current data
+  const availableStocks = data 
+    ? Object.keys(data.data).map(ticker => {
+        // Extract exchange from ticker using the same logic as in useStockData
+        let exchange = 'NSE'; // Default
+        
+        if (ticker.includes('FUT')) {
+          if (ticker.includes('NIFTY')) {
+            exchange = 'NFO';
+          } else if (ticker.includes('SENSEX')) {
+            exchange = 'BSE';
+          } else if (ticker.includes('USDINR')) {
+            exchange = 'CDS';
+          } else if (ticker.includes('CRUDEOIL')) {
+            exchange = 'MCX';
+          }
+        } else if (ticker.includes('RELIANCE') || ticker.includes('INFY')) {
+          exchange = 'NSE';
+        }
+        
+        return { ticker, exchange };
+      })
+    : [];
 
   return (
     <div className="min-h-screen flex flex-col w-full bg-monitor-body">
-      {/* Stale Data Alert - Integrated into the application's UI */}
+      {/* Stale Data Alert - Now positioned as a banner at the top */}
       <div className="w-full sticky top-0 z-10">
         <StaleDataAlert 
           lastPriceChangeTime={lastPriceChangeTimestamp}
           isActive={connectionStatus === "connected" && !isLoading && !isError}
-          staleDurationMs={STALE_DATA_THRESHOLD_MS}
           staleStocks={staleStocks}
+          onSettingsClick={handleOpenSettings}
         />
       </div>
       
@@ -65,6 +98,7 @@ export default function TerminalApp() {
           onRefresh={refresh} 
           onViewNotifications={handleViewNotifications}
           onClearNotifications={handleClearNotifications}
+          onOpenSettings={handleOpenSettings}
         />
         <TerminalBody 
           data={data} 
@@ -84,6 +118,13 @@ export default function TerminalApp() {
       <NotificationHistory 
         isOpen={isNotificationHistoryOpen}
         onClose={handleCloseNotifications}
+      />
+      
+      {/* Settings Modal */}
+      <SettingsModal 
+        isOpen={isSettingsModalOpen}
+        onClose={handleCloseSettings}
+        availableStocks={availableStocks}
       />
     </div>
   );

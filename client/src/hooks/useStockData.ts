@@ -74,19 +74,53 @@ export const useStockData = () => {
     return changed;
   }, [stockTimestamps]);
 
-  // Check for stale stock data
+  // Check for stale stock data using settings context
   useEffect(() => {
     if (Object.keys(stockTimestamps).length === 0) return;
     
+    // Import settings context
+    const settingsStorageKey = 'stockMonitorSettings';
+    const getSettings = () => {
+      try {
+        const settingsJson = localStorage.getItem(settingsStorageKey);
+        if (settingsJson) {
+          return JSON.parse(settingsJson);
+        }
+      } catch (error) {
+        console.warn('Error reading settings from localStorage:', error);
+      }
+      
+      // Default settings if not found
+      return {
+        stockThresholds: [],
+        monitoringEnabled: true,
+        defaultThreshold: 30000, // 30 seconds in milliseconds
+      };
+    };
+    
     const checkStaleness = () => {
       const now = new Date();
-      const staleThreshold = 30000; // 30 seconds
+      const settings = getSettings();
+      
+      // Skip check if monitoring is disabled
+      if (!settings.monitoringEnabled) {
+        if (staleStocks.length > 0) {
+          setStaleStocks([]);
+        }
+        return;
+      }
+      
+      const defaultThreshold = settings.defaultThreshold; // default: 30 seconds
       const newStaleStocks: Array<{ticker: string, exchange: string}> = [];
       
       Object.entries(stockTimestamps).forEach(([ticker, data]) => {
         // Check the stock's own timestamp instead of global timestamp
         const stockTime = data.priceTimestamp.getTime();
         const timeDiff = now.getTime() - stockTime;
+        
+        // Get custom threshold for this stock or use default
+        const stockSetting = settings.stockThresholds.find((s: { ticker: string }) => s.ticker === ticker);
+        const staleThreshold = stockSetting ? stockSetting.threshold : defaultThreshold;
         
         // Extract exchange from ticker if available
         let exchange = 'NSE'; // Default
@@ -112,16 +146,19 @@ export const useStockData = () => {
       });
       
       // If we found new stale stocks, update the state and notify
-      if (newStaleStocks.length > 0 && 
-          JSON.stringify(newStaleStocks.map(s => s.ticker)) !== JSON.stringify(staleStocks.map(s => s.ticker))) {
+      if (JSON.stringify(newStaleStocks.map((s: { ticker: string }) => s.ticker)) !== JSON.stringify(staleStocks.map((s: { ticker: string }) => s.ticker))) {
         setStaleStocks(newStaleStocks);
         
         // Create a notification for the stale data
         if (newStaleStocks.length > 0) {
-          const staleStocksList = newStaleStocks.map(s => s.ticker).join(', ');
+          const staleStocksList = newStaleStocks.map((s: { ticker: string }) => s.ticker).join(', ');
+          const thresholdText = newStaleStocks.length === 1 
+            ? `${settings.stockThresholds.find((s: { ticker: string }) => s.ticker === newStaleStocks[0].ticker)?.threshold/1000 || defaultThreshold/1000}s` 
+            : 'threshold';
+            
           const notification = {
             id: Date.now().toString(),
-            message: `No price changes for over 30 seconds in stocks: ${staleStocksList}`,
+            message: `No price changes for over ${thresholdText} in stocks: ${staleStocksList}`,
             timestamp: new Date(),
             type: 'stale' as const
           };

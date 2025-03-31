@@ -1,5 +1,5 @@
 import { 
-  RefreshCw, Database, Wifi, Info, 
+  RefreshCw, Database, Wifi, Info, Settings,
   BarChart3, X, Bell, Sun, Moon, Trash2, LayoutDashboard, ChevronDown
 } from "lucide-react";
 import { useState } from "react";
@@ -9,12 +9,14 @@ interface TerminalHeaderProps {
   onRefresh: () => void;
   onViewNotifications: () => void;
   onClearNotifications: () => void;
+  onOpenSettings?: () => void;
 }
 
 export default function TerminalHeader({ 
   onRefresh, 
   onViewNotifications,
-  onClearNotifications 
+  onClearNotifications,
+  onOpenSettings
 }: TerminalHeaderProps) {
   const [showInfo, setShowInfo] = useState(false);
   const { theme, toggleTheme } = useTheme();
@@ -80,9 +82,15 @@ export default function TerminalHeader({
                   <Bell size={14} className="mr-1.5" /> 
                   Stale Data Detection
                 </h5>
-                <p className="text-monitor-muted">
-                  Individual stocks are monitored for data freshness. When a stock's data hasn't updated in more than 30 seconds, visual and audio alerts will notify you.
+                <p className="text-monitor-muted mb-3">
+                  Individual stocks are monitored for data freshness. When a stock's data hasn't updated for longer than its threshold time, visual and audio alerts will notify you.
                 </p>
+                <div className="bg-monitor-card-accent/30 rounded p-2 text-xs">
+                  <p className="text-monitor-accent flex items-center">
+                    <Settings size={13} className="mr-1.5" />
+                    Use the Settings button to customize alert thresholds for each stock.
+                  </p>
+                </div>
               </div>
               <div className="bg-monitor-header/50 px-4 py-2 rounded-b-md flex justify-end">
                 <button 
@@ -99,6 +107,17 @@ export default function TerminalHeader({
             </div>
           )}
         </div>
+        
+        {/* Settings Button */}
+        {onOpenSettings && (
+          <button
+            onClick={onOpenSettings}
+            className="text-monitor-muted hover:text-monitor-accent p-2 rounded-md transition-colors"
+            title="Alert Settings"
+          >
+            <Settings size={18} />
+          </button>
+        )}
         
         {/* Theme Toggle Button */}
         <button

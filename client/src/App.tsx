@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
+import { SettingsProvider } from "@/context/SettingsContext";
 import NotificationHistory, { NotificationItem } from "@/components/NotificationHistory";
 import { BellRing, Sun, Moon } from "lucide-react";
 
@@ -42,7 +43,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AppContent />
+        <SettingsProvider>
+          <AppContent />
+        </SettingsProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
